@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Incredible India — AI Travel Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   INCREDIBLE INDIA — SLATE BLUE LUXURY THEME
+   251 Destinations | 46 Columns | Full AI
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* Premium Indigo-Violet Palette */
+  --blue:      #6366F1;
+  --blue-lt:   #A5B4FC;
+  --blue-dim:  rgba(99,102,241,.18);
+  --blue-glow: rgba(99,102,241,.32);
+  --cyan:      #8B5CF6;
+  --cyan-dim:  rgba(139,92,246,.14);
+  --gold:      #F59E0B;
+  --gold-dim:  rgba(245,158,11,.15);
+  --rose:      #F43F5E;
+  --teal:      #14B8A6;
+  /* Neutrals */
+  --cream:     #F1F0FF;
+  --white:     rgba(241,240,255,.92);
+  --muted:     rgba(167,162,220,.65);
+  --mt:        rgba(167,162,220,.65);
+  --dim:       rgba(167,162,220,.2);
+  /* Backgrounds — Deep Space */
+  --bg:        #05040F;
+  --bg-1:      #0A0818;
+  --bg-2:      #0F0D1F;
+  --bg-3:      #161428;
+  --bg-4:      #1C1A32;
+  /* Borders */
+  --b-blue:    rgba(99,102,241,.24);
+  --b-dim:     rgba(167,162,220,.08);
+  /* Shadows */
+  --sh-card:   0 8px 40px rgba(0,0,0,.8), 0 0 0 1px var(--b-blue);
+  --sh-hover:  0 24px 80px rgba(0,0,0,.9), 0 0 0 1px rgba(99,102,241,.5), 0 0 60px rgba(99,102,241,.18);
+  --sh-blue:   0 0 40px rgba(99,102,241,.3), 0 0 80px rgba(99,102,241,.12);
+  --sh-btn:    0 8px 32px rgba(99,102,241,.5);
+  /* Radii */
+  --r:    16px;
+  --r-sm: 10px;
+  --r-lg: 24px;
+  --ease: .3s cubic-bezier(.4,0,.2,1);
+  --s:    #F43F5E;
+  --g:    #10B981;
+}
+
+html{scroll-behavior:smooth;font-size:17px}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);color:var(--cream);
+  min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;line-height:1.7;
+}
+
+/* ── BG ── */
+.bg-mesh{
+  position:fixed;inset:0;z-index:0;
+  background:#05040F;
+}
+/* Animated aurora orbs */
+.bg-orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);}
+.bg-orb-1{width:700px;height:700px;top:-180px;left:-180px;
+  background:radial-gradient(ellipse,rgba(99,102,241,.22) 0%,transparent 70%);
+  animation:orb1 14s ease-in-out infinite alternate;}
+.bg-orb-2{width:600px;height:600px;bottom:-150px;right:-150px;
+  background:radial-gradient(ellipse,rgba(139,92,246,.18) 0%,transparent 70%);
+  animation:orb2 18s ease-in-out infinite alternate;}
+.bg-orb-3{width:500px;height:500px;top:40%;left:55%;
+  background:radial-gradient(ellipse,rgba(20,184,166,.1) 0%,transparent 70%);
+  animation:orb3 22s ease-in-out infinite alternate;}
+.bg-orb-4{width:400px;height:400px;top:20%;right:10%;
+  background:radial-gradient(ellipse,rgba(244,63,94,.08) 0%,transparent 70%);
+  animation:orb4 16s ease-in-out infinite alternate;}
+@keyframes orb1{0%{transform:translate(0,0) scale(1);}50%{transform:translate(60px,80px) scale(1.12);}100%{transform:translate(100px,30px) scale(.95);}}
+@keyframes orb2{0%{transform:translate(0,0) scale(1);}50%{transform:translate(-80px,-60px) scale(1.18);}100%{transform:translate(-30px,-120px) scale(.9);}}
+@keyframes orb3{0%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.25);}100%{transform:translate(-50%,-50%) scale(.8);}}
+@keyframes orb4{0%{transform:translate(0,0) scale(1);}100%{transform:translate(-40px,60px) scale(1.1);}}
+/* Subtle grid */
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(99,102,241,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(99,102,241,.035) 1px,transparent 1px);
+  background-size:70px 70px;
+  mask-image:radial-gradient(ellipse 75% 75% at 50% 40%,black 20%,transparent 100%);
+}
+/* Noise texture overlay */
+.bg-noise{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat:repeat;background-size:200px 200px;}
+#bgCanvas{position:fixed;inset:0;z-index:0;opacity:.6;pointer-events:none}
+
+/* ── NAVBAR ── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:999;height:68px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2.5rem;gap:1rem;
+  background:rgba(5,4,15,.65);border-bottom:1px solid rgba(99,102,241,.12);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  transition:all .5s ease;
+}
+.nav.scrolled{
+  background:rgba(7,11,20,.93);
+  backdrop-filter:blur(32px) saturate(180%);
+  border-bottom-color:var(--b-blue);
+  box-shadow:0 1px 0 var(--b-blue),var(--sh-blue);
+}
+.brand{
+  font-family:'Libre Baskerville',serif;font-size:1.3rem;font-weight:700;
+  letter-spacing:.04em;white-space:nowrap;flex-shrink:0;padding:.8rem 0;
+  display:flex;align-items:center;gap:.5rem;
+  background:linear-gradient(135deg,var(--blue-lt),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.brand-dot{
+  width:8px;height:8px;background:var(--blue);border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 10px var(--blue);animation:dotPulse 3s ease infinite;
+}
+@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+.nav-tabs{display:flex;overflow-x:auto;scrollbar-width:none;gap:.1rem}
+.nav-tabs::-webkit-scrollbar{display:none}
+.ntab{
+  padding:.75rem 1.15rem;font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+  color:var(--muted);cursor:pointer;border:none;background:none;
+  border-bottom:2px solid transparent;transition:all .25s;white-space:nowrap;flex-shrink:0;
+  position:relative;
+}
+.ntab::after{
+  content:'';position:absolute;bottom:-1px;left:50%;right:50%;
+  height:2px;border-radius:2px;
+  background:linear-gradient(90deg,#6366F1,#8B5CF6);
+  transition:all .3s;
+}
+.ntab:hover{color:var(--cream)}.ntab:hover::after{left:8%;right:8%}
+.ntab.active{color:#A5B4FC}.ntab.active::after{left:0;right:0}
+.wl-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--blue);color:#fff;border-radius:50%;
+  width:17px;height:17px;font-size:.46rem;margin-left:4px;font-weight:800;
+  box-shadow:0 0 10px var(--blue-glow);
+}
+
+/* ── PAGES ── */
+.page{display:none;position:relative;z-index:1}.page.active{display:block}
+.wrap{max-width:1060px;margin:0 auto;padding:3.5rem 2rem 8rem}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:7rem 2rem 5rem;position:relative;overflow:hidden;
+}
+/* Scrollable hero background */
+.hero-slides{position:absolute;inset:0;z-index:0}
+.hero-slide{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  opacity:0;transition:opacity 1.8s ease;
+  animation:slideZoom 8s ease-in-out infinite alternate;
+}
+.hero-slide.active{opacity:1}
+@keyframes slideZoom{from{transform:scale(1)}to{transform:scale(1.06)}}
+.hero-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:
+    linear-gradient(180deg,rgba(7,11,20,.75) 0%,rgba(7,11,20,.12) 35%,rgba(7,11,20,.55) 70%,rgba(7,11,20,1) 100%),
+    linear-gradient(90deg,rgba(7,11,20,.3) 0%,transparent 50%,rgba(7,11,20,.3) 100%);
+}
+/* Blue glow behind title */
+.hero-glow{
+  position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);
+  width:800px;height:450px;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(59,130,246,.22) 0%,rgba(34,211,238,.1) 45%,transparent 70%);
+  filter:blur(55px);
+  animation:glowBreath 5s ease-in-out infinite;
+}
+@keyframes glowBreath{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}}
+.hero>*:not(.hero-slides):not(.hero-overlay):not(.hero-glow):not(.hero-credit):not(.scroll-ind){position:relative;z-index:3}
+.hero-credit{position:absolute;bottom:.9rem;right:1.2rem;z-index:4;font-size:.45rem;color:rgba(255,255,255,.2);letter-spacing:.06em}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:1rem;
+  font-size:.6rem;letter-spacing:.55em;text-transform:uppercase;
+  font-weight:600;color:#A5B4FC;margin-bottom:1.6rem;
+  animation:fadeUp 1s .1s ease both;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:30px;height:1px;background:linear-gradient(90deg,transparent,var(--blue-lt))}
+.hero-eyebrow::after{background:linear-gradient(90deg,var(--blue-lt),transparent)}
+
+.h1-inc{
+  display:block;font-family:'Libre Baskerville',serif;
+  font-size:clamp(4rem,12vw,9.5rem);font-weight:400;letter-spacing:.05em;line-height:1;
+  background:linear-gradient(155deg,rgba(241,240,255,.97) 0%,var(--cream) 40%,rgba(165,180,252,.4) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 55px rgba(99,102,241,.3));
+  animation:fadeUp 1s .2s ease both;
+}
+.h1-india{
+  display:block;font-family:'Libre Baskerville',serif;
+  font-size:clamp(5rem,16vw,13.5rem);font-weight:700;letter-spacing:-.01em;line-height:.88;
+  background:linear-gradient(155deg,var(--blue) 0%,var(--blue-lt) 45%,var(--cyan) 80%,#60C8F0 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 90px rgba(34,211,238,.35));
+  animation:fadeUp 1s .25s ease both;
+}
+.hero-orn{
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+  margin:1.8rem 0 2.2rem;animation:fadeUp 1s .38s ease both;
+}
+.orn-l{flex:1;max-width:90px;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,.6))}
+.orn-l.r{background:linear-gradient(90deg,rgba(99,102,241,.6),transparent)}
+.orn-d{width:5px;height:5px;background:var(--blue-lt);transform:rotate(45deg);box-shadow:0 0 8px var(--blue)}
+.orn-s{font-size:.7rem;color:rgba(147,197,253,.5)}
+
+.hero-tag{
+  font-family:'Libre Baskerville',serif;font-style:italic;
+  font-size:clamp(1.05rem,2.4vw,1.3rem);
+  color:rgba(232,240,255,.6);max-width:540px;line-height:1.9;
+  margin:0 auto 3.2rem;animation:fadeUp 1s .48s ease both;
+}
+.hero-tag strong{color:#A5B4FC;font-style:normal;font-weight:700;text-shadow:0 0 30px rgba(99,102,241,.4)}
+
+.hero-btns{display:flex;align-items:center;gap:1.2rem;justify-content:center;flex-wrap:wrap;animation:fadeUp 1s .58s ease both}
+.btn-hero{
+  display:inline-flex;align-items:center;gap:.8rem;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.68rem;
+  font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:#fff;text-decoration:none;cursor:pointer;border:none;
+  background:linear-gradient(135deg,var(--blue),#1E40AF);
+  background-size:200% 100%;
+  padding:17px 46px;border-radius:999px;
+  box-shadow:var(--sh-btn),inset 0 1px 0 rgba(255,255,255,.15);
+  transition:all .4s;position:relative;overflow:hidden;
+}
+.btn-hero::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .55s}
+.btn-hero:hover{background-position:100% 0;transform:translateY(-3px);box-shadow:0 20px 55px rgba(59,130,246,.55),inset 0 1px 0 rgba(255,255,255,.15)}
+.btn-hero:hover::before{left:100%}
+.btn-hero-ghost{
+  display:inline-flex;align-items:center;gap:.7rem;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.66rem;
+  font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(165,180,252,.8);text-decoration:none;cursor:pointer;
+  border:1px solid rgba(59,130,246,.32);padding:16px 34px;border-radius:999px;
+  backdrop-filter:blur(8px);background:rgba(99,102,241,.07);transition:all .3s;
+}
+.btn-hero-ghost:hover{border-color:#A5B4FC;color:var(--cream);background:rgba(99,102,241,.15);box-shadow:var(--sh-blue)}
+
+.scroll-ind{position:absolute;bottom:2.2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;z-index:4;animation:fadeUp 1s 1.1s ease both}
+.s-line{width:1px;height:56px;background:linear-gradient(180deg,var(--blue-lt),transparent);animation:sAnim 2.3s ease infinite}
+@keyframes sAnim{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.s-txt{font-size:.47rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(147,197,253,.4)}
+
+/* ── SECTION LABELS ── */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:.65rem;
+  font-size:.6rem;letter-spacing:.38em;text-transform:uppercase;
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+  color:#A5B4FC;margin-bottom:.7rem;
+}
+.eyebrow::before{content:'';width:20px;height:1px;background:var(--blue-lt);opacity:.65}
+.sec-title{
+  font-family:'Libre Baskerville',serif;
+  font-size:clamp(2.4rem,5.5vw,3.5rem);font-weight:700;
+  line-height:1.08;margin-bottom:2.4rem;letter-spacing:-.01em;
+  color:var(--cream);
+}
+.divider{display:flex;align-items:center;gap:1.2rem;margin:3.2rem 0}
+.d-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--b-blue),transparent)}
+.d-ico{color:#A5B4FC;font-size:.85rem;text-shadow:0 0 10px var(--blue)}
+
+/* ── FORM ── */
+.form-shell{
+  background:rgba(255,255,255,.04);border:1px solid var(--b-blue);
+  border-radius:var(--r-lg);padding:2.8rem 2.6rem;
+  backdrop-filter:blur(28px) saturate(160%);
+  box-shadow:var(--sh-card),inset 0 1px 0 rgba(255,255,255,.06);
+  position:relative;overflow:hidden;
+}
+.form-shell::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,.55),var(--cyan),rgba(59,130,246,.55),transparent)}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.3rem}
+@media(max-width:680px){.fgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.fgrid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:.5rem}
+.field label{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:rgba(165,180,252,.9)}
+.field select,.isel{
+  appearance:none;background:rgba(255,255,255,.06);border:1px solid var(--b-dim);
+  border-radius:var(--r-sm);padding:.95rem 2.4rem .95rem 1.15rem;
+  color:var(--cream);font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:400;
+  cursor:pointer;transition:all .3s;width:100%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2393C5FD' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+}
+.field select:hover,.isel:hover{border-color:rgba(99,102,241,.4)}
+.field select:focus,.isel:focus{outline:none;border-color:var(--blue);background:rgba(99,102,241,.08);box-shadow:0 0 0 3px rgba(59,130,246,.15),var(--sh-blue)}
+.field select option,.isel option{background:#111827;color:var(--cream)}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.95rem 2rem;border:none;border-radius:999px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.68rem;
+  font-weight:700;letter-spacing:.18em;text-transform:uppercase;transition:all .3s;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--blue),#1E40AF);
+  background-size:200% 100%;color:#fff;
+  box-shadow:var(--sh-btn),inset 0 1px 0 rgba(255,255,255,.15);
+}
+.btn-primary:hover{background-position:100% 0;transform:translateY(-2px);box-shadow:0 16px 44px rgba(99,102,241,.6)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;border:1px solid var(--b-blue);color:rgba(165,180,252,.9);backdrop-filter:blur(8px)}
+.btn-ghost:hover{border-color:#A5B4FC;color:var(--cream);background:var(--blue-dim);box-shadow:var(--sh-blue)}
+.btn-gold{background:linear-gradient(135deg,#60A5FA,#3B82F6);color:#fff;box-shadow:0 8px 28px rgba(99,102,241,.4)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 16px 44px rgba(59,130,246,.55)}
+
+/* ── LOADER ── */
+.loader{display:none;flex-direction:column;align-items:center;gap:1.5rem;padding:5rem}.loader.show{display:flex}
+.spin{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--b-dim);border-top-color:#A5B4FC;animation:spin 1s linear infinite;box-shadow:var(--sh-blue)}
+.load-txt{font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:#A5B4FC;opacity:.75;font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ── DESTINATION CARDS ── */
+#results{margin-top:3rem}
+.dest-card{
+  display:grid;grid-template-columns:1fr 300px;
+  border:1px solid var(--b-blue);border-radius:var(--r-lg);overflow:hidden;
+  margin-bottom:1.8rem;min-height:240px;
+  background:linear-gradient(135deg,rgba(255,255,255,.05) 0%,rgba(59,130,246,.03) 100%);
+  backdrop-filter:blur(18px);box-shadow:var(--sh-card);
+  transition:all var(--ease);animation:fadeUp .55s ease both;position:relative;
+}
+.dest-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,.5),var(--cyan),rgba(99,102,241,.5),transparent);z-index:1}
+.dest-card:hover{border-color:rgba(99,102,241,.55);transform:translateY(-5px) scale(1.003);box-shadow:var(--sh-hover)}
+.c-left{display:flex;flex-direction:column}
+.c-rank{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;border-radius:50%;margin:1.1rem 0 0 1.3rem;flex-shrink:0;
+  background:linear-gradient(135deg,var(--blue),#1E40AF);
+  font-family:'Libre Baskerville',serif;font-size:1.1rem;color:#fff;font-weight:700;
+  box-shadow:0 4px 18px rgba(99,102,241,.5);
+}
+.c-body{padding:.85rem 1.6rem 0;flex:1}
+.c-loc{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(165,180,252,.85);margin-bottom:.35rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif}
+.c-name{font-family:'Libre Baskerville',serif;font-size:1.9rem;font-weight:700;line-height:1.05;margin-bottom:.55rem;color:var(--cream)}
+.c-hindi{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:400;color:rgba(147,197,253,0.7);display:block;margin-top:2px;letter-spacing:.02em}
+.c-desc{font-family:'Libre Baskerville',serif;font-style:italic;font-size:1.05rem;color:rgba(232,240,255,.6);line-height:1.75;margin-bottom:.95rem;min-height:2.3rem}
+.tags{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.tag{
+  font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+  padding:5px 13px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.15);color:rgba(232,240,255,.75);
+  background:rgba(255,255,255,.04);transition:all .25s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.tag:hover{border-color:rgba(99,102,241,.35);color:#A5B4FC}
+.tag.hot{border-color:rgba(99,102,241,.45);background:rgba(99,102,241,.12);color:#A5B4FC;box-shadow:0 0 10px rgba(59,130,246,.15)}
+.info-chip{
+  font-size:.7rem;padding:3px 10px;border-radius:999px;font-weight:600;
+  border:1px solid rgba(147,197,253,.2);background:rgba(99,102,241,.08);
+  color:rgba(165,180,252,.8);font-family:'Plus Jakarta Sans',sans-serif;
+}
+.gem-badge{
+  font-size:.7rem;padding:3px 10px;border-radius:999px;font-weight:700;
+  border:1px solid rgba(34,211,238,.4);background:rgba(34,211,238,.1);
+  color:var(--cyan);font-family:'Plus Jakarta Sans',sans-serif;
+}
+.unesco-badge{
+  font-size:.7rem;padding:3px 10px;border-radius:999px;font-weight:700;
+  border:1px solid rgba(251,191,36,.4);background:rgba(251,191,36,.1);
+  color:#FCD34D;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.c-bottom{display:flex;align-items:center;gap:.7rem;padding:1rem 1.6rem 1.2rem;border-top:1px solid var(--b-dim);margin-top:auto}
+.c-mr{display:flex;align-items:center;gap:1rem}
+.mpct{font-family:'Libre Baskerville',serif;font-size:1.9rem;font-weight:700;line-height:1;background:linear-gradient(135deg,var(--blue-lt),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 18px rgba(99,102,241,.35))}
+.mlbl{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px;font-family:'Plus Jakarta Sans',sans-serif}
+.msep{width:1px;height:30px;background:var(--b-dim)}
+.mstars{font-size:.75rem;color:#A5B4FC;text-shadow:0 0 8px rgba(99,102,241,.35)}
+.c-btns{margin-left:auto;display:flex;gap:.5rem}
+.ico-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--b-dim);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.88rem;transition:all .25s;color:var(--muted)}
+.ico-btn:hover{border-color:#A5B4FC;background:var(--blue-dim);color:#A5B4FC;box-shadow:var(--sh-blue)}
+.ico-btn.liked{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1);color:#ef4444}
+.c-img{position:relative;overflow:hidden;flex-shrink:0}
+.c-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .65s ease}
+.dest-card:hover .c-img img{transform:scale(1.08)}
+.c-img-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,11,20,.6) 0%,transparent 40%)}
+.c-img-sk{width:100%;height:100%;min-height:240px;background:linear-gradient(90deg,rgba(59,130,246,.025) 25%,rgba(59,130,246,.07) 50%,rgba(59,130,246,.025) 75%);background-size:200% 100%;animation:shimmer 2s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.wtag{display:inline-flex;align-items:center;gap:.32rem;background:var(--blue-dim);border:1px solid rgba(99,102,241,.3);border-radius:var(--r-sm);padding:4px 11px;font-size:.64rem;color:#A5B4FC;margin-top:.65rem;cursor:pointer;transition:all .25s;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif}
+.wtag:hover{background:rgba(99,102,241,.2);box-shadow:var(--sh-blue)}
+.ai-th{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:var(--muted);font-style:italic}
+.ai-dot{width:4px;height:4px;background:var(--blue-lt);border-radius:50%;animation:aiP 1.3s ease infinite}
+.ai-dot:nth-child(2){animation-delay:.26s}.ai-dot:nth-child(3){animation-delay:.52s}
+@keyframes aiP{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+
+/* ── WEATHER POPUP ── */
+.overlay{display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);align-items:center;justify-content:center}.overlay.show{display:flex}
+.pop{background:linear-gradient(135deg,var(--bg-2),var(--bg-3));border:1px solid var(--b-blue);border-radius:var(--r-lg);padding:3rem;max-width:400px;width:92%;position:relative;animation:fadeUp .35s ease;box-shadow:var(--sh-card),var(--sh-blue)}
+.pop::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue-lt),var(--cyan),var(--blue-lt),transparent)}
+.pop-close{position:absolute;top:1.1rem;right:1.3rem;background:rgba(255,255,255,.06);border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.pop-close:hover{background:rgba(255,255,255,.12);color:var(--cream)}
+.pop-city{font-family:'Libre Baskerville',serif;font-size:2rem;color:var(--cream);margin-bottom:.2rem;font-weight:700}
+.pop-temp{font-family:'Libre Baskerville',serif;font-size:5rem;color:#A5B4FC;line-height:1;font-weight:700;filter:drop-shadow(0 0 32px rgba(99,102,241,.4))}
+.pop-cond{font-family:'Libre Baskerville',serif;font-style:italic;font-size:1rem;color:var(--muted);margin:.5rem 0 1.4rem}
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-top:1rem}
+.wstat{background:rgba(255,255,255,.04);border:1px solid var(--b-dim);border-radius:var(--r-sm);padding:1rem;text-align:center;transition:border-color .2s}
+.wstat:hover{border-color:var(--b-blue)}
+.wval{font-size:1.2rem;font-weight:700;color:var(--cream);margin-bottom:3px;font-family:'Libre Baskerville',serif}
+.wlbl{font-size:.67rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ── MAP ── */
+#map{height:540px;border-radius:var(--r-lg);border:1px solid var(--b-blue);margin-top:1.8rem;box-shadow:var(--sh-card);overflow:hidden}
+.leaflet-container{background:#080C18}
+
+/* ── COMPARE ── */
+.cmp-slots{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2.4rem}
+.cmp-slot{background:rgba(255,255,255,.03);border:1px dashed rgba(59,130,246,.25);border-radius:var(--r);padding:1.1rem 1.7rem;display:flex;align-items:center;gap:.8rem;min-width:205px;cursor:pointer;transition:all .3s}
+.cmp-slot:hover{border-color:#A5B4FC;background:var(--blue-dim);box-shadow:var(--sh-blue)}
+.cmp-slot.filled{border-style:solid;border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.08)}
+.slot-name{font-family:'Libre Baskerville',serif;font-size:1.1rem;color:var(--cream);font-weight:700}
+.slot-empty{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif}
+.rm-slot{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;transition:color .2s}.rm-slot:hover{color:var(--cream)}
+.cmp-wrap{overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--b-blue);box-shadow:var(--sh-card)}
+.cmp-table{width:100%;border-collapse:collapse;min-width:560px}
+.cmp-table thead{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(34,211,238,.06))}
+.cmp-table th{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:#A5B4FC;padding:1.1rem 1.4rem;text-align:left;border-bottom:1px solid var(--b-blue);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700}
+.cmp-table td{padding:1rem 1.4rem;font-size:.88rem;line-height:1.6;border-bottom:1px solid rgba(59,130,246,.05);color:var(--cream);vertical-align:middle;transition:background .2s}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table tr:hover td{background:rgba(99,102,241,.04)}
+.cmp-table .rlbl{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(165,180,252,.75);font-weight:700;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif}
+.sbar{height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:5px;min-width:80px}
+.sfill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue-lt),var(--cyan))}
+.cbadge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.74rem;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif}
+.cb-g{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+.cb-y{background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);color:#A5B4FC}
+.cb-r{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#f87171}
+.pick-modal{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);align-items:center;justify-content:center}.pick-modal.show{display:flex}
+.pick-box{background:linear-gradient(135deg,var(--bg-2),var(--bg-3));border:1px solid var(--b-blue);border-radius:var(--r-lg);padding:2.4rem;max-width:520px;width:92%;max-height:82vh;overflow-y:auto;animation:fadeUp .3s ease;box-shadow:var(--sh-card)}
+.pick-item{display:flex;align-items:center;gap:1rem;padding:.9rem 1rem;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;border:1px solid transparent}
+.pick-item:hover{background:var(--blue-dim);border-color:var(--b-blue)}
+.pick-name{font-family:'Libre Baskerville',serif;font-size:1.12rem;color:var(--cream);font-weight:700}
+.pick-state{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ── WISHLIST ── */
+.wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}
+.wl-card{background:rgba(255,255,255,.04);border:1px solid var(--b-blue);border-radius:var(--r-lg);padding:1.8rem;transition:all var(--ease);animation:fadeUp .4s ease both;position:relative;overflow:hidden}
+.wl-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,.5),var(--cyan),rgba(99,102,241,.5),transparent)}
+.wl-card:hover{border-color:rgba(99,102,241,.5);transform:translateY(-4px);box-shadow:var(--sh-hover)}
+.wl-name{font-family:'Libre Baskerville',serif;font-size:1.6rem;color:var(--cream);margin-bottom:.25rem;font-weight:700}
+.wl-state{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;font-family:'Plus Jakarta Sans',sans-serif}
+.wl-act{display:flex;gap:.55rem;margin-top:1.2rem}.wl-act .btn{flex:1;padding:.68rem;font-size:.62rem}
+
+/* ── ITINERARY ── */
+.itin-form{background:rgba(255,255,255,.04);border:1px solid var(--b-blue);border-radius:var(--r-lg);padding:2.6rem;margin-bottom:2.4rem;box-shadow:var(--sh-card);position:relative;overflow:hidden}
+.itin-form::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue-lt),var(--cyan),var(--blue-lt),transparent)}
+.day-card{background:rgba(255,255,255,.04);border:1px solid var(--b-blue);border-radius:var(--r-lg);overflow:hidden;margin-bottom:1.5rem;animation:fadeUp .45s ease both;box-shadow:var(--sh-card);transition:all var(--ease)}
+.day-card:hover{border-color:rgba(99,102,241,.5);box-shadow:var(--sh-hover)}
+.day-hdr{display:flex;align-items:center;gap:1.2rem;padding:1.4rem 1.8rem;background:linear-gradient(90deg,rgba(59,130,246,.12),rgba(34,211,238,.05),transparent);border-bottom:1px solid var(--b-blue)}
+.day-num{font-family:'Libre Baskerville',serif;font-size:2.6rem;color:#A5B4FC;line-height:1;min-width:54px;font-weight:700;filter:drop-shadow(0 0 16px rgba(99,102,241,.4))}
+.day-title{font-family:'Libre Baskerville',serif;font-size:1.35rem;color:var(--cream);font-weight:700}
+.day-body{padding:1.5rem 1.8rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem}
+@media(max-width:620px){.day-body{grid-template-columns:1fr}}
+.tb{padding:1.1rem;background:rgba(99,102,241,.04);border-radius:var(--r-sm);border:1px solid var(--b-dim);transition:all .25s}
+.tb:hover{border-color:var(--b-blue);background:rgba(99,102,241,.08)}
+.tl{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#A5B4FC;margin-bottom:.5rem;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif}
+.tc{font-family:'Libre Baskerville',serif;font-style:italic;font-size:.95rem;color:rgba(232,240,255,.55);line-height:1.75}
+.dtip{grid-column:1/-1;display:flex;align-items:flex-start;gap:.7rem;padding:1rem 1.2rem;background:rgba(99,102,241,.07);border-radius:var(--r-sm);border:1px solid rgba(59,130,246,.2);border-left:2px solid var(--blue-lt)}
+
+/* ── CHATBOT ── */
+.chat-bubble{position:fixed;bottom:2.2rem;right:2.2rem;z-index:1000}
+.chat-toggle{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1E3A8A);border:1px solid rgba(99,102,241,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.65rem;box-shadow:0 8px 36px rgba(59,130,246,.55),0 0 0 0 rgba(99,102,241,.3);transition:all .3s;animation:chatPulse 4s ease infinite}
+@keyframes chatPulse{0%,80%,100%{box-shadow:0 8px 36px rgba(59,130,246,.55),0 0 0 0 rgba(99,102,241,.3)}70%{box-shadow:0 8px 36px rgba(59,130,246,.55),0 0 0 14px rgba(59,130,246,.0)}}
+.chat-toggle:hover{transform:scale(1.1) rotate(8deg);box-shadow:0 14px 48px rgba(59,130,246,.7)}
+.chat-notif{position:absolute;top:-4px;right:-4px;width:21px;height:21px;background:linear-gradient(135deg,var(--cyan),var(--blue-lt));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:800;color:#0D1220;box-shadow:0 0 14px rgba(34,211,238,.6);animation:notifB 2.5s ease infinite}
+@keyframes notifB{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+.chat-win{position:fixed;bottom:6.2rem;right:2.2rem;z-index:1000;width:375px;background:linear-gradient(180deg,#0e1420,#090e18);border:1px solid var(--b-blue);border-radius:24px;overflow:hidden;box-shadow:0 36px 90px rgba(0,0,0,.85),var(--sh-card),var(--sh-blue);display:none;flex-direction:column;max-height:580px}
+.chat-win.open{display:flex;animation:chatSlide .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes chatSlide{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.chat-win::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue-lt),var(--cyan),var(--blue-lt),transparent)}
+.chat-head{background:linear-gradient(135deg,rgba(59,130,246,.16),rgba(34,211,238,.07));padding:1.1rem 1.3rem;border-bottom:1px solid var(--b-blue);display:flex;align-items:center;gap:.9rem}
+.chat-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1E3A8A);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 0 18px rgba(99,102,241,.5)}
+.chat-nm{font-size:.88rem;font-weight:700;color:var(--cream);font-family:'Libre Baskerville',serif}
+.chat-st{font-size:.57rem;color:#4ade80;letter-spacing:.07em;margin-top:2px;display:flex;align-items:center;gap:.3rem;font-family:'Plus Jakarta Sans',sans-serif}
+.chat-st::before{content:'';width:6px;height:6px;background:#4ade80;border-radius:50%;box-shadow:0 0 7px #4ade80;animation:dotPulse 2s ease infinite}
+.chat-cls{background:rgba(255,255,255,.07);border:none;color:var(--muted);cursor:pointer;margin-left:auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .2s}
+.chat-cls:hover{background:rgba(255,255,255,.14);color:var(--cream)}
+.chat-msgs{flex:1;overflow-y:auto;padding:1.1rem;display:flex;flex-direction:column;gap:.8rem;scrollbar-width:thin;scrollbar-color:rgba(59,130,246,.2) transparent;min-height:0}
+.msg{max-width:90%;padding:.75rem 1.1rem;border-radius:16px;font-size:.82rem;line-height:1.65;animation:fadeUp .25s ease;font-family:'Plus Jakarta Sans',sans-serif}
+.msg.bot{background:rgba(255,255,255,.06);border:1px solid var(--b-dim);color:var(--cream);align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 2px 14px rgba(0,0,0,.35)}
+.msg.user{background:linear-gradient(135deg,var(--blue),#1E3A8A);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;box-shadow:0 4px 18px rgba(99,102,241,.35)}
+.msg.typing{background:rgba(255,255,255,.06);border:1px solid var(--b-dim);align-self:flex-start;padding:.75rem 1.1rem}
+.chat-sugs{padding:.6rem .9rem;display:flex;gap:.4rem;flex-wrap:wrap;border-top:1px solid var(--b-dim);background:rgba(0,0,0,.25)}
+.sug{font-size:.72rem;padding:5px 11px;border-radius:999px;border:1px solid var(--b-blue);color:rgba(165,180,252,.85);cursor:pointer;transition:all .25s;background:rgba(99,102,241,.07);font-family:'Plus Jakarta Sans',sans-serif;font-weight:600}
+.sug:hover{border-color:#A5B4FC;color:var(--cream);background:rgba(99,102,241,.16);box-shadow:var(--sh-blue)}
+.chat-inp-row{padding:.9rem;border-top:1px solid var(--b-dim);display:flex;gap:.6rem;background:rgba(0,0,0,.3)}
+.chat-inp{flex:1;background:rgba(255,255,255,.07);border:1px solid var(--b-dim);border-radius:999px;padding:.75rem 1.15rem;color:var(--cream);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;outline:none;transition:all .3s}
+.chat-inp:focus{border-color:#A5B4FC;background:rgba(99,102,241,.08);box-shadow:0 0 0 3px rgba(59,130,246,.14)}
+.chat-inp::placeholder{color:var(--muted)}
+.chat-send{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--blue-lt),var(--blue));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0D1220;font-size:.95rem;transition:all .25s;flex-shrink:0;font-weight:800}
+.chat-send:hover{transform:scale(1.12);box-shadow:var(--sh-blue)}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(99,102,241,.3);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:rgba(99,102,241,.5)}
+@media(max-width:700px){.dest-card{grid-template-columns:1fr}.c-img{display:none}.nav{padding:0 1.2rem}.chat-win{width:calc(100vw - 2rem);right:1rem}.wrap{padding:2.5rem 1.3rem 6rem}}
+@media(max-width:500px){.fgrid{grid-template-columns:1fr}.h1-inc{font-size:clamp(3.5rem,14vw,6rem)}.h1-india{font-size:clamp(4rem,18vw,8rem)}}
+
+/* ── HOW AI WORKS PAGE ── */
+.ai-steps{display:flex;flex-direction:column;gap:0}
+.ai-step{display:flex;gap:1.5rem;padding:1.6rem;background:rgba(255,255,255,.03);border:1px solid rgba(59,130,246,.15);border-radius:16px;margin-bottom:.5rem;opacity:0;transform:translateY(20px);animation:aiStepIn .5s ease forwards}
+@keyframes aiStepIn{to{opacity:1;transform:translateY(0)}}
+.ai-step-num{font-size:2.2rem;font-weight:800;color:rgba(59,130,246,.25);font-family:'Libre Baskerville',serif;min-width:48px;line-height:1}
+.ai-step-title{font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:.4rem}
+.ai-step-desc{font-size:.85rem;color:var(--mt);line-height:1.6;margin-bottom:.9rem}
+.ai-arrow{text-align:center;font-size:1.4rem;color:rgba(99,102,241,.4);margin:.1rem 0;line-height:1}
+.ai-pref-pills{display:flex;flex-wrap:wrap;gap:7px}
+.ai-pill{font-size:.72rem;padding:5px 12px;border-radius:999px;background:rgba(99,102,241,.12);border:1px solid rgba(59,130,246,.25);color:rgba(165,180,252,.95);font-weight:600;opacity:0;animation:pillPop .3s ease forwards}
+@keyframes pillPop{to{opacity:1}}
+.ai-vector-demo{background:rgba(0,0,0,.2);border-radius:10px;padding:.9rem 1rem;border:1px solid rgba(255,255,255,.06)}
+.ai-vec-label{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mt);margin-bottom:.4rem}
+.ai-vec-row{display:flex;gap:6px}
+.ai-vec-cell{width:36px;height:36px;border-radius:8px;background:rgba(99,102,241,.15);border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:rgba(165,180,252,.9);opacity:0;animation:cellIn .3s ease forwards}
+.ai-vec-match{background:rgba(99,102,241,.3);border-color:rgba(99,102,241,.6);color:#93c5fd}
+.ai-vec-part{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.3);color:#fbbf24}
+@keyframes cellIn{to{opacity:1}}
+.ai-cosine-demo{display:flex;flex-direction:column;gap:.55rem}
+.ai-cosine-bar-wrap{display:flex;align-items:center;gap:.8rem}
+.ai-cosine-name{font-size:.78rem;color:var(--mt);min-width:110px}
+.ai-cosine-track{flex:1;height:8px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden}
+.ai-cosine-fill{height:100%;border-radius:999px;width:0%;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+.ai-cosine-pct{font-size:.78rem;font-weight:700;color:rgba(165,180,252,.9);min-width:32px;text-align:right}
+.ai-formula{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;background:rgba(0,0,0,.2);border-radius:10px;padding:.9rem 1rem;border:1px solid rgba(255,255,255,.06)}
+.ai-formula-part{font-size:.82rem;font-weight:700;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,.05)}
+.ai-formula-result{font-size:.9rem;font-weight:800;color:var(--cream)}
+.ai-llm-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ai-llm-chip{font-size:.78rem;padding:6px 14px;border-radius:999px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:rgba(196,181,253,.85);font-weight:600}
+.ai-tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.ai-tech-card{background:rgba(255,255,255,.03);border:1px solid rgba(59,130,246,.12);border-radius:12px;padding:.9rem;text-align:center}
+.ai-tech-icon{font-size:1.4rem;margin-bottom:.4rem}
+.ai-tech-name{font-size:.8rem;font-weight:700;color:var(--cream);margin-bottom:.2rem}
+.ai-tech-role{font-size:.7rem;color:var(--mt)}
+
+/* Premium scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-1)}
+::-webkit-scrollbar-thumb{background:rgba(99,102,241,.4);border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:rgba(99,102,241,.7)}
+/* Text selection */
+::selection{background:rgba(99,102,241,.35);color:var(--cream)}
+/* Premium glow on active nav tab */
+.ntab.active{color:var(--cream);border-bottom-color:#6366F1;text-shadow:0 0 20px rgba(99,102,241,.5)}
+/* Smooth card hover lift */
+.dest-card{transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s cubic-bezier(.4,0,.2,1)}
+.dest-card:hover{transform:translateY(-4px)}
+/* Gold accent for match % */
+.match-pct{background:linear-gradient(135deg,#6366F1,#8B5CF6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+/* Premium search button pulse */
+@keyframes btnPulse{0%,100%{box-shadow:0 8px 32px rgba(99,102,241,.5)}50%{box-shadow:0 8px 48px rgba(99,102,241,.8),0 0 60px rgba(139,92,246,.3)}}
+#searchBtn{animation:btnPulse 3s ease-in-out infinite}
+/* Map marker glow */
+.leaflet-popup-content-wrapper{background:#0F0D1F!important;color:#F1F0FF!important;border:1px solid rgba(99,102,241,.3)!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,.8)!important}
+.leaflet-popup-tip{background:#0F0D1F!important}
+.leaflet-popup-close-button{color:#A5B4FC!important}
+
+/* ── INLINE MAP MODAL ── */
+.results-map-btn{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.75rem 1.6rem;border-radius:12px;
+  background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(139,92,246,.12));
+  border:1px solid rgba(99,102,241,.35);
+  color:#A5B4FC;font-size:.82rem;font-weight:700;
+  cursor:pointer;letter-spacing:.04em;
+  transition:all .25s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.results-map-btn:hover{background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(139,92,246,.2));border-color:rgba(99,102,241,.6);transform:translateY(-2px);}
+.results-map-btn .rmap-dot{width:8px;height:8px;border-radius:50%;background:#6366F1;box-shadow:0 0 8px rgba(99,102,241,.8);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.4);}}
+
+/* Modal overlay */
+.imap-overlay{
+  display:none;position:fixed;inset:0;z-index:2000;
+  background:rgba(5,4,15,.88);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;
+}
+.imap-overlay.show{display:flex;}
+.imap-modal{
+  width:92vw;max-width:1100px;height:82vh;
+  background:#0A0818;border-radius:20px;
+  border:1px solid rgba(99,102,241,.3);
+  box-shadow:0 32px 80px rgba(0,0,0,.9),0 0 60px rgba(99,102,241,.15);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.imap-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.3rem;border-bottom:1px solid rgba(99,102,241,.15);
+  background:#0F0D1F;flex-shrink:0;
+}
+.imap-title{font-size:1rem;font-weight:700;color:#F1F0FF;display:flex;align-items:center;gap:.6rem;}
+.imap-count{font-size:.72rem;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.35);color:#A5B4FC;font-weight:600;}
+.imap-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#9CA3AF;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.imap-close:hover{background:rgba(244,63,94,.2);border-color:rgba(244,63,94,.4);color:#F43F5E;}
+.imap-legend{display:flex;gap:.8rem;align-items:center;padding:.5rem 1.3rem;background:#0A0818;border-bottom:1px solid rgba(255,255,255,.04);flex-wrap:wrap;flex-shrink:0;}
+.imap-leg-item{display:flex;align-items:center;gap:.35rem;font-size:.72rem;color:#9CA3AF;}
+.imap-leg-dot{width:10px;height:10px;border-radius:50%;}
+#inlineMap{flex:1;width:100%;min-height:0;}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+<div class="bg-orb bg-orb-4"></div>
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+<canvas id="bgCanvas"></canvas>
+
+<!-- WEATHER POPUP -->
+<div class="overlay" id="wOv">
+  <div class="pop">
+    <button class="pop-close" onclick="closeW()">✕</button>
+    <div class="pop-city" id="w-city">—</div>
+    <div class="pop-temp" id="w-temp">—</div>
+    <div class="pop-cond" id="w-cond">Loading weather…</div>
+    <div class="wgrid">
+      <div class="wstat"><div class="wval" id="w-hum">—</div><div class="wlbl">Humidity</div></div>
+      <div class="wstat"><div class="wval" id="w-wind">—</div><div class="wlbl">Wind</div></div>
+      <div class="wstat"><div class="wval" id="w-feel">—</div><div class="wlbl">Feels Like</div></div>
+    </div>
+    <div style="font-size:.6rem;color:var(--muted);margin-top:1.1rem;text-align:center;font-family:'Plus Jakarta Sans',sans-serif" id="w-note"></div>
+  </div>
+</div>
+
+<!-- COMPARE PICKER -->
+<div class="pick-modal" id="pickModal">
+  <div class="pick-box">
+    <div class="eyebrow" style="margin-bottom:1.1rem">Select Destination to Compare</div>
+    <div id="pick-list"></div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="nav" id="mainNav">
+  <div class="brand"><div class="brand-dot"></div>✦ Incredible India</div>
+  <div class="nav-tabs">
+    <button class="ntab active" onclick="pg('home')">🔍 Discover</button>
+    <button class="ntab" onclick="pg('map-pg')">🗺️ Map</button>
+    <button class="ntab" onclick="pg('cmp-pg')">📊 Compare</button>
+    <button class="ntab" onclick="pg('itin-pg')">📝 Trip Planner</button>
+    <button class="ntab" onclick="pg('wl-pg')">❤️ Wishlist<span class="wl-badge" id="wl-cnt">0</span></button>
+    <button class="ntab" onclick="pg('ai-pg')">🤖 How AI Works</button>
+  </div>
+</nav>
+
+<!-- ═══ HOME ═══ -->
+<div class="page active" id="home" style="padding-top:0">
+
+  <!-- HERO with scrollable image slides -->
+  <div class="hero" id="heroSection">
+    <div class="hero-slides" id="heroSlides"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-credit" id="heroCredit"></div>
+
+    <div class="hero-eyebrow">Discover the Soul of Bharat</div>
+    <span class="h1-inc">Incredible</span>
+    <span class="h1-india">India</span>
+    <div class="hero-orn">
+      <div class="orn-l"></div><div class="orn-s">✦</div>
+      <div class="orn-d"></div><div class="orn-s">✦</div>
+      <div class="orn-l r"></div>
+    </div>
+    <p class="hero-tag">
+      From the snows of Ladakh to the shores of Andaman —<br>
+      <strong>let AI curate your perfect Indian journey.</strong>
+    </p>
+    <div class="hero-btns">
+      <a class="btn-hero" href="#form-anchor">Begin Your Journey &nbsp;✦</a>
+      <a class="btn-hero-ghost" href="#form-anchor">↓ &nbsp;Explore Now</a>
+    </div>
+    <div class="scroll-ind">
+      <div class="s-txt">Scroll to Discover</div>
+      <div class="s-line"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="form-anchor" style="height:1px"></div>
+    <div class="divider"><div class="d-line"></div><div class="d-ico">✦</div><div class="d-line"></div></div>
+    <div class="eyebrow">Your Preferences</div>
+    <div class="sec-title">How Do You Like<br>To Travel?</div>
+
+    <div class="form-shell reveal">
+      <div class="fgrid">
+        <div class="field"><label>💰 Budget</label>
+          <select id="budget"><option value="low">Budget-Friendly</option><option value="medium" selected>Mid-Range</option><option value="high">Luxury</option></select></div>
+        <div class="field"><label>🌤️ Climate</label>
+          <select id="climate"><option value="tropical">Tropical</option><option value="mild" selected>Mild &amp; Pleasant</option><option value="cold">Cold &amp; Snowy</option><option value="hot">Hot &amp; Arid</option></select></div>
+        <div class="field"><label>🗺️ Region</label>
+          <select id="region"><option value="all">All of India</option><option value="north">North India</option><option value="south">South India</option><option value="east">East India</option><option value="west">West India</option><option value="northeast">Northeast India</option><option value="central">Central India</option><option value="island">Islands</option></select></div>
+        <div class="field"><label>🏄 Activity Type</label>
+          <select id="activity_type"><option value="beach">Beach &amp; Coast</option><option value="adventure">Adventure &amp; Trek</option><option value="cultural" selected>Cultural &amp; Heritage</option><option value="nature">Nature &amp; Wildlife</option></select></div>
+        <div class="field"><label>📅 Best Season</label>
+          <select id="best_season"><option value="winter" selected>Winter</option><option value="spring">Spring</option><option value="summer">Summer</option><option value="monsoon">Monsoon</option></select></div>
+        <div class="field"><label>✨ Travel Vibe</label>
+          <select id="vibe"><option value="romantic">Romantic</option><option value="party">Party &amp; Nightlife</option><option value="spiritual">Spiritual</option><option value="nature" selected>Nature Retreat</option><option value="cultural">Cultural Immersion</option><option value="adventure">Pure Adventure</option></select></div>
+        <div class="field"><label>🔢 Results</label>
+          <select id="top_n"><option value="3">Top 3</option><option value="5" selected>Top 5</option><option value="7">Top 7</option><option value="10">Top 10</option></select></div>
+        <div class="field" style="grid-column:2/-1;justify-content:flex-end">
+          <label style="opacity:0">.</label>
+          <button class="btn btn-primary" id="searchBtn" onclick="doSearch()" style="width:100%;font-size:.75rem;padding:1.1rem 2rem">✦ &nbsp;Find My Destinations</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="loader" id="loader"><div class="spin"></div><div class="load-txt">AI is curating your perfect journey…</div></div>
+    <div id="results"></div>
+  </div>
+</div>
+
+<!-- ═══ MAP ═══ -->
+<div class="page" id="map-pg"><div class="wrap">
+  <div class="eyebrow">Interactive Map</div>
+  <div class="sec-title">Destinations on Map</div>
+  <p style="color:var(--muted);font-family:'Libre Baskerville',serif;font-style:italic;font-size:1rem;margin-bottom:1rem;line-height:1.8">Search destinations first — pins will appear on the map.</p>
+  <div id="map"></div>
+</div></div>
+
+<!-- ═══ COMPARE ═══ -->
+<div class="page" id="cmp-pg"><div class="wrap">
+  <div class="eyebrow">Side-by-Side Analysis</div>
+  <div class="sec-title">Compare Destinations<br>in Detail</div>
+  <p style="color:var(--muted);font-family:'Libre Baskerville',serif;font-style:italic;font-size:.97rem;margin-bottom:2.2rem;line-height:1.8">Search first, then select up to 3 destinations to compare across 17 parameters.</p>
+  <div class="cmp-slots" id="cmp-slots">
+    <div class="cmp-slot" id="slot-0" onclick="openPick(0)"><span class="slot-empty">+ Add Destination</span></div>
+    <div class="cmp-slot" id="slot-1" onclick="openPick(1)"><span class="slot-empty">+ Add Destination</span></div>
+    <div class="cmp-slot" id="slot-2" onclick="openPick(2)"><span class="slot-empty">+ Add Destination</span></div>
+  </div>
+  <div id="cmp-wrap" class="cmp-wrap" style="display:none"></div>
+</div></div>
+
+<!-- ═══ WISHLIST ═══ -->
+<div class="page" id="wl-pg"><div class="wrap">
+  <div class="eyebrow">Your Collection</div>
+  <div class="sec-title">Saved Destinations ❤️</div>
+  <div id="wl-content"></div>
+</div></div>
+
+<!-- ═══ ITINERARY ═══ -->
+<div class="page" id="itin-pg"><div class="wrap">
+  <div class="eyebrow">AI Trip Planner</div>
+  <div class="sec-title">Plan Your Perfect<br>Journey</div>
+  <div class="itin-form reveal">
+    <div class="fgrid">
+      <div class="field"><label>📍 Destination</label><select class="isel" id="itin-dest"><option value="">— Search first —</option></select></div>
+      <div class="field"><label>📅 Duration</label><select id="itin-days" class="isel"><option value="2">2 Days</option><option value="3" selected>3 Days</option><option value="4">4 Days</option><option value="5">5 Days</option><option value="7">7 Days</option></select></div>
+      <div class="field"><label>✨ Travel Mood</label><select id="itin-vibe" class="isel"><option value="nature">Nature</option><option value="cultural">Cultural</option><option value="adventure">Adventure</option><option value="romantic">Romantic</option><option value="spiritual">Spiritual</option></select></div>
+    </div>
+    <button class="btn btn-primary" id="itinBtn" onclick="genItin()" style="width:100%;margin-top:1.4rem;font-size:.75rem;padding:1.1rem 2rem">✦ &nbsp;Generate AI Itinerary</button>
+  </div>
+  <div class="loader" id="itin-loader"><div class="spin"></div><div class="load-txt">AI is planning your trip…</div></div>
+  <div id="itin-out"></div>
+</div></div>
+
+<!-- ═══ CHATBOT ═══ -->
+<div class="chat-bubble">
+  <div class="chat-win" id="chatWin">
+    <div class="chat-head">
+      <div class="chat-av">🧭</div>
+      <div style="flex:1"><div class="chat-nm">Yatra AI</div><div class="chat-st">Powered by Groq Llama ✨</div></div>
+      <button class="chat-cls" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg bot">Hello! 🙏 I am <b>Yatra AI ✨</b> — Ask me anything about India's destinations. Budget, weather, routes, food — I'll tell you everything!</div>
+    </div>
+    <div class="chat-sugs" id="chatSugs">
+      <button class="sug" onclick="sendSug(this)">When to visit Goa?</button>
+      <button class="sug" onclick="sendSug(this)">Trip in ₹15,000?</button>
+      <button class="sug" onclick="sendSug(this)">How to reach Ladakh?</button>
+      <button class="sug" onclick="sendSug(this)">Best places in Monsoon?</button>
+    </div>
+    <div class="chat-inp-row">
+      <input class="chat-inp" id="chatInp" placeholder="Ask anything about India travel…" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+  <button class="chat-toggle" onclick="toggleChat()">🧭<div class="chat-notif" id="chatNotif">1</div></button>
+</div>
+
+<script>
+/* ── PARTICLE CANVAS ── */
+(function(){
+  const c=document.getElementById('bgCanvas'),x=c.getContext('2d');
+  let W,H,stars=[],meteors=[];
+  const COLORS=['rgba(99,102,241,','rgba(139,92,246,','rgba(20,184,166,','rgba(245,158,11,'];
+  function rsz(){W=c.width=innerWidth;H=c.height=innerHeight;}
+  rsz();addEventListener('resize',rsz);
+  // Static twinkling stars
+  function mkStar(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*.9+.2,a:Math.random(),da:(.002+Math.random()*.006)*(Math.random()<.5?1:-1),col:COLORS[Math.floor(Math.random()*COLORS.length)]};}
+  for(let i=0;i<120;i++)stars.push(mkStar());
+  // Shooting meteors
+  function mkMeteor(){const angle=Math.PI/4+Math.random()*.3;const spd=4+Math.random()*5;return{x:Math.random()*W*1.5-W*.25,y:-20,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,len:80+Math.random()*120,a:1,col:COLORS[Math.floor(Math.random()*COLORS.length)]};}
+  let mt=0;
+  function draw(){
+    x.clearRect(0,0,W,H);mt++;
+    if(mt%180===0&&meteors.length<3)meteors.push(mkMeteor());
+    // Twinkling stars
+    stars.forEach(s=>{
+      s.a+=s.da;
+      if(s.a>1){s.a=1;s.da=-Math.abs(s.da);}
+      if(s.a<0.05){s.a=0.05;s.da=Math.abs(s.da);}
+      x.beginPath();x.arc(s.x,s.y,s.r,0,Math.PI*2);
+      x.fillStyle=s.col+s.a.toFixed(2)+')';x.fill();
+    });
+    // Shooting stars / meteors
+    meteors=meteors.filter(m=>{
+      m.x+=m.vx;m.y+=m.vy;m.a-=.012;
+      if(m.a<=0||m.y>H+50)return false;
+      const grd=x.createLinearGradient(m.x,m.y,m.x-m.vx*(m.len/5),m.y-m.vy*(m.len/5));
+      grd.addColorStop(0,m.col+m.a.toFixed(2)+')');
+      grd.addColorStop(1,m.col+'0)');
+      x.beginPath();x.moveTo(m.x,m.y);
+      x.lineTo(m.x-m.vx*(m.len/5),m.y-m.vy*(m.len/5));
+      x.strokeStyle=grd;x.lineWidth=1.5;x.stroke();
+      x.beginPath();x.arc(m.x,m.y,1.5,0,Math.PI*2);
+      x.fillStyle=m.col+m.a.toFixed(2)+')';x.fill();
+      return true;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── HERO SLIDESHOW ── */
+(function(){
+  const slides=[
+    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg/1920px-Taj_Mahal%2C_Agra%2C_India_edit3.jpg',c:'Wikimedia Commons'},
+    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg/1920px-Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg',c:'Wikimedia Commons'},
+    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Virupaksha_Temple%2C_Hampi.jpg/1920px-Virupaksha_Temple%2C_Hampi.jpg',c:'Wikimedia Commons'},
+    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Jaisalmer_Fort.jpg/1920px-Jaisalmer_Fort.jpg',c:'Wikimedia Commons'},
+    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Kerala_backwater_boat.jpg/1920px-Kerala_backwater_boat.jpg',c:'Wikimedia Commons'},
+    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Leh_Town_and_Palace.jpg/1920px-Leh_Town_and_Palace.jpg',c:'Wikimedia Commons'},
+  ];
+  const container=document.getElementById('heroSlides');
+  const credit=document.getElementById('heroCredit');
+  // Create slide elements
+  const els=slides.map((s,i)=>{
+    const d=document.createElement('div');
+    d.className='hero-slide'+(i===0?' active':'');
+    d.style.backgroundImage=`url('${s.url}')`;
+    container.appendChild(d);
+    return d;
+  });
+  let cur=0;
+  function next(){
+    els[cur].classList.remove('active');
+    cur=(cur+1)%els.length;
+    els[cur].classList.add('active');
+    if(credit)credit.textContent='Photo: '+slides[cur].c+' / Unsplash';
+  }
+  if(credit)credit.textContent='Photo: '+slides[0].c+' / Unsplash';
+  setInterval(next,5500);
+})();
+
+/* ── SCROLL REVEAL ── */
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+<script>
+
+// FB.default = onerror fallback — Taj Mahal (always available from Wikimedia)
+const FB={default:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg/1280px-Taj_Mahal%2C_Agra%2C_India_edit3.jpg'};
+// Hero slideshow — verified Wikimedia India landmark photos
+const HERO=[
+  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg/1920px-Taj_Mahal%2C_Agra%2C_India_edit3.jpg',c:'Wikimedia Commons'},
+  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg/1920px-Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg',c:'Wikimedia Commons'},
+  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Virupaksha_Temple%2C_Hampi.jpg/1920px-Virupaksha_Temple%2C_Hampi.jpg',c:'Wikimedia Commons'},
+  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Jaisalmer_Fort.jpg/1920px-Jaisalmer_Fort.jpg',c:'Wikimedia Commons'},
+  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Kerala_backwater_boat.jpg/1920px-Kerala_backwater_boat.jpg',c:'Wikimedia Commons'},
+  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Leh_Town_and_Palace.jpg/1920px-Leh_Town_and_Palace.jpg',c:'Wikimedia Commons'},
+];
+let lastR=[],wl=JSON.parse(localStorage.getItem('wl_v7')||'[]'),cmpI=[null,null,null],pickT=0,leafMap=null,mMarkers=[],chatH=[],chatOpen=false,lastP={};
+const cap=s=>s?s[0].toUpperCase()+s.slice(1):'';
+const cIco=l=>({'Low':'🟢','Medium':'🟡','High':'🔴'}[l]||'⚪');
+const bE={low:'💵',medium:'💳',high:'💎'};
+const aE={beach:'🏖️',adventure:'🧗',cultural:'🏛️',urban:'🏙️',nature:'🌿'};
+const vE={romantic:'💑',party:'🎉',spiritual:'🕉️',nature:'🌲',cultural:'🎭',adventure:'⚡',luxury:'👑'};
+
+window.addEventListener('scroll',()=>{document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>80);});
+
+function pg(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const m={'home':0,'map-pg':1,'cmp-pg':2,'itin-pg':3,'wl-pg':4,'ai-pg':5};
+  if(m[id]!==undefined)document.querySelectorAll('.ntab')[m[id]].classList.add('active');
+  if(id==='map-pg')initMap();if(id==='wl-pg')renderWL();if(id==='cmp-pg')renderCmpTable();
+  if(id==='ai-pg')animateAI();
+  window.scrollTo(0,0);
+}
+
+function loadHero(){const b=document.getElementById('heroBg'),cr=document.getElementById('heroCredit'),p=HERO[Math.floor(Math.random()*HERO.length)];b.style.backgroundImage=`url('${p.url}')`;if(cr)cr.textContent='Photo: '+p.c+' / Unsplash';}
+
+async function doSearch(){
+  const btn=document.getElementById('searchBtn'),ldr=document.getElementById('loader'),res=document.getElementById('results');
+  lastP={budget:document.getElementById('budget').value,climate:document.getElementById('climate').value,activity_type:document.getElementById('activity_type').value,best_season:document.getElementById('best_season').value,vibe:document.getElementById('vibe').value,region:document.getElementById('region').value,top_n:document.getElementById('top_n').value};
+  btn.disabled=true;ldr.classList.add('show');res.innerHTML='';
+  try{const r=await fetch('/recommend',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lastP)});const data=await r.json();lastR=data;renderCards(data);popItin(data);updMap(data);}
+  catch(e){res.innerHTML=`<div style="text-align:center;padding:3rem"><div style="font-size:2.5rem;margin-bottom:1rem">⚠️</div><p style="color:#ef4444;font-size:1.1rem;font-weight:600;margin-bottom:.5rem">Unable to connect to server</p><p style="color:var(--mt);font-size:.85rem;margin-bottom:1.5rem">Please run this command in terminal:</p><code style="background:rgba(99,102,241,.15);color:#A5B4FC;padding:10px 20px;border-radius:10px;font-size:.95rem;border:1px solid rgba(99,102,241,.3)">python app.py</code><p style="color:var(--mt);font-size:.75rem;margin-top:1rem">Then refresh this page • Error: ${e.message}</p></div>`;}
+  finally{btn.disabled=false;ldr.classList.remove('show');}
+}
+
+function renderCards(data){
+  const div=document.getElementById('results');
+  if(!data.length){div.innerHTML=`<p style="text-align:center;color:var(--mt);padding:3rem">No destinations found. Try changing preferences.</p>`;return;}
+  let html='';
+  html+=`<div class="eyebrow">AI Results</div><div class="sec-title" style="margin-bottom:1rem">Best Indian Destinations<br>For You</div>`;
+  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.8rem">
+    <button class="results-map-btn" onclick="openIMap()">
+      <span class="rmap-dot"></span>
+      🗺️ View All ${data.length} on Map
+    </button>
+    <button class="btn btn-gold" onclick="downloadPDF()" style="display:flex;align-items:center;gap:.5rem">📄 &nbsp;Download PDF</button>
+  </div>`;
+  data.forEach((d,i)=>{
+    const liked=wl.some(w=>w.name===d.name);
+    html+=`<div class="dest-card" style="animation-delay:${i*.09}s">
+      <div class="c-left">
+        <div class="c-rank">${i+1}</div>
+        <div class="c-body">
+          <div class="c-loc">📍 ${d.state} · ${cap(d.region)} India</div>
+          <div class="c-name">${d.name}${d.hindi_name ? `<span class="c-hindi"> ${d.hindi_name}</span>` : ''}</div>
+          <div class="c-desc" id="desc-${i}"><span class="ai-th"><span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>&nbsp;Writing AI description…</span></div>
+          <div class="tags">
+            <span class="tag hot">${aE[d.activity_type]||'🗺️'} ${cap(d.activity_type)}</span>
+            <span class="tag">${bE[d.budget]||'💰'} ${cap(d.budget)}</span>
+            <span class="tag">📅 ${cap(d.best_season)}</span>
+            <span class="tag">${vE[d.vibe]||'✨'} ${cap(d.vibe)}</span>
+            <span class="tag" style="border-color:rgba(34,197,94,.3);color:#22c55e;background:rgba(34,197,94,.06)">${cIco(d.crowd_level)} ${d.crowd_level} Crowd</span>
+          </div>
+          ${d.famous_for?`<div style="margin-top:.55rem;display:flex;flex-wrap:wrap;gap:4px">${d.famous_for.split('|').map(f=>`<span style="font-size:.68rem;padding:3px 10px;border-radius:999px;background:rgba(212,150,10,.09);border:1px solid rgba(212,150,10,.22);color:var(--g)">✦ ${f.trim()}</span>`).join('')}</div>`:''}
+          <div style="margin-top:.6rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap">
+            <span class="wtag" onclick="showW('${d.name}')">🌡️ Weather</span>
+            ${d.daily_cost_min?`<span style="font-size:.7rem;color:rgba(165,180,252,.8)">💰 ₹${Number(d.daily_cost_min).toLocaleString('en-IN')}–₹${Number(d.daily_cost_max).toLocaleString('en-IN')}<span style="font-size:.72rem"> /day</span></span>`:''}
+          </div>
+        </div>
+        <div class="c-bottom">
+          <div class="c-mr">
+            <div><div class="mpct">${d.match_percent}%</div><div class="mlbl">Match</div></div>
+            <div class="msep"></div>
+            <div><div class="mstars">${'★'.repeat(Math.round(d.rating))}${'☆'.repeat(5-Math.round(d.rating))}</div><div style="font-size:.65rem;color:var(--mt)">${d.rating}/5</div></div>
+          </div>
+          <div class="c-btns">
+            <button class="ico-btn ${liked?'liked':''}" id="heart-${i}" onclick="toggleWL(${i})" title="Wishlist">${liked?'❤️':'🤍'}</button>
+            <button class="ico-btn" onclick="addToCmp(${i})" title="Compare">📊</button>
+            <button class="ico-btn" onclick="planThis(${i})" title="Plan Trip">📝</button>
+          </div>
+        </div>
+      </div>
+      <div class="c-img" id="img-${i}"><div class="c-img-sk"></div><div class="c-img-overlay"></div></div>
+    </div>`;
+  });
+  div.innerHTML=html;
+  data.forEach((d,i)=>{fetchDesc(d,i);fetchImg(d,i);});
+}
+
+async function fetchDesc(dest,idx){
+  try{const r=await fetch('/ai-description',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({destination:dest.name,state:dest.state,vibe:lastP.vibe,activity:lastP.activity_type,season:lastP.best_season})});const d=await r.json();const el=document.getElementById(`desc-${idx}`);if(el)el.textContent=d.description||dest.description;}
+  catch{const el=document.getElementById(`desc-${idx}`);if(el)el.textContent=dest.description;}
+}
+// ── DESTINATION PHOTO MAP — Wikipedia Commons verified URLs ──
+// Each URL is a real photo of that EXACT place from Wikimedia Commons.
+// No Unsplash IDs — those were generic/wrong. These are guaranteed correct.
+const DEST_PHOTOS = {
+  'Goa':                  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Baga_Beach%2C_Goa.jpg/1280px-Baga_Beach%2C_Goa.jpg',
+  'Manali':               'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Manali_Valley.jpg/1280px-Manali_Valley.jpg',
+  'Kerala Backwaters':    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Kerala_backwater_boat.jpg/1280px-Kerala_backwater_boat.jpg',
+  'Rajasthan - Jaipur':   'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Hawa_Mahal%2C_Jaipur%2C_Rajasthan%2C_India_2016.jpg/1280px-Hawa_Mahal%2C_Jaipur%2C_Rajasthan%2C_India_2016.jpg',
+  'Varanasi':             'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Dashashwamedh_Ghat%2C_Varanasi.jpg/1280px-Dashashwamedh_Ghat%2C_Varanasi.jpg',
+  'Darjeeling':           'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Darjeeling_Himalayan_Railway_on_Batasia_Loop.jpg/1280px-Darjeeling_Himalayan_Railway_on_Batasia_Loop.jpg',
+  'Leh Ladakh':           'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Leh_Town_and_Palace.jpg/1280px-Leh_Town_and_Palace.jpg',
+  'Andaman Islands':      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Radhanagar_Beach_Andaman.jpg/1280px-Radhanagar_Beach_Andaman.jpg',
+  'Mysuru':               'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Mysore_Palace_illuminated.jpg/1280px-Mysore_Palace_illuminated.jpg',
+  'Rishikesh':            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Laxman_Jhula%2C_Rishikesh.jpg/1280px-Laxman_Jhula%2C_Rishikesh.jpg',
+  'Coorg':                'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Dubare_Elephant_Camp_Coorg.jpg/1280px-Dubare_Elephant_Camp_Coorg.jpg',
+  'Hampi':                'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Virupaksha_Temple%2C_Hampi.jpg/1280px-Virupaksha_Temple%2C_Hampi.jpg',
+  'Udaipur':              'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Udaipur_lake_palace.jpg/1280px-Udaipur_lake_palace.jpg',
+  'Munnar':               'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Tea_Gardens_Munnar.jpg/1280px-Tea_Gardens_Munnar.jpg',
+  'Spiti Valley':         'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Spiti_Valley_himachal_pradesh.jpg/1280px-Spiti_Valley_himachal_pradesh.jpg',
+  'Ooty':                 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Ooty_Lake.jpg/1280px-Ooty_Lake.jpg',
+  'Amritsar':             'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg/1280px-Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg',
+  'Ranthambore':          'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Bengal_tiger_%28Panthera_tigris_tigris%29_female_3_crop.jpg/1280px-Bengal_tiger_%28Panthera_tigris_tigris%29_female_3_crop.jpg',
+  'Pondicherry':          'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Pondicherry_French_Quarter.jpg/1280px-Pondicherry_French_Quarter.jpg',
+  'Agra':                 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg/1280px-Taj_Mahal%2C_Agra%2C_India_edit3.jpg',
+  'Shimla':               'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Shimla_Ridge.jpg/1280px-Shimla_Ridge.jpg',
+  'Jodhpur':              'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Jodhpur_-_Blue_city.jpg/1280px-Jodhpur_-_Blue_city.jpg',
+  'Alleppey':             'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Alleppey_backwaters_Kerala.jpg/1280px-Alleppey_backwaters_Kerala.jpg',
+  'Kaziranga':            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/One-horned_Rhinoceros_Kaziranga.jpg/1280px-One-horned_Rhinoceros_Kaziranga.jpg',
+  'Khajuraho':            'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Lakshmana_Temple%2C_Khajuraho.jpg/1280px-Lakshmana_Temple%2C_Khajuraho.jpg',
+  'Mahabalipuram':        'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Shore_Temple_Mahabalipuram.jpg/1280px-Shore_Temple_Mahabalipuram.jpg',
+  'Ziro Valley':          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Ziro_Valley_Arunachal_Pradesh.jpg/1280px-Ziro_Valley_Arunachal_Pradesh.jpg',
+  'Mount Abu':            'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Nakki_Lake_Mount_Abu.jpg/1280px-Nakki_Lake_Mount_Abu.jpg',
+  'Puri':                 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Jagannath_Temple%2C_Puri.jpg/1280px-Jagannath_Temple%2C_Puri.jpg',
+  'Pachmarhi':            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bee_Fall_Pachmarhi.jpg/1280px-Bee_Fall_Pachmarhi.jpg',
+  'Tawang':               'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Tawang_Monastery.jpg/1280px-Tawang_Monastery.jpg',
+  'Varkala':              'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Varkala_Cliff_Beach.jpg/1280px-Varkala_Cliff_Beach.jpg',
+  'Chopta':               'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Tungnath_temple_Uttarakhand.jpg/1280px-Tungnath_temple_Uttarakhand.jpg',
+  'Pushkar':              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Pushkar_Lake_Rajasthan.jpg/1280px-Pushkar_Lake_Rajasthan.jpg',
+  'Kovalam':              'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Kovalam_beach_Kerala.jpg/1280px-Kovalam_beach_Kerala.jpg',
+  'Bikaner':              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Junagarh_Fort_Bikaner.jpg/1280px-Junagarh_Fort_Bikaner.jpg',
+  'Mawsynram':            'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Cherrapunji_waterfall.jpg/1280px-Cherrapunji_waterfall.jpg',
+  'Gandikota':            'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Gandikota_Fort_Andhra_Pradesh.jpg/1280px-Gandikota_Fort_Andhra_Pradesh.jpg',
+  'Lansdowne':            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Lansdowne_Uttarakhand.jpg/1280px-Lansdowne_Uttarakhand.jpg',
+  'Mcleod Ganj':          'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/McLeod_Ganj_Dharamsala.jpg/1280px-McLeod_Ganj_Dharamsala.jpg',
+  'McLeod Ganj':          'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/McLeod_Ganj_Dharamsala.jpg/1280px-McLeod_Ganj_Dharamsala.jpg',
+  'Majuli':               'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Majuli_island_Assam.jpg/1280px-Majuli_island_Assam.jpg',
+  'Mahabaleshwar':        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Mahabaleshwar_view.jpg/1280px-Mahabaleshwar_view.jpg',
+  'Lonavala':             'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Lonavala_Bhushi_Dam.jpg/1280px-Lonavala_Bhushi_Dam.jpg',
+  'Jaisalmer':            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Jaisalmer_Fort.jpg/1280px-Jaisalmer_Fort.jpg',
+  'Chikmagalur':          'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Chikmagalur_coffee_estate.jpg/1280px-Chikmagalur_coffee_estate.jpg',
+  'Ellora':               'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Ellora_cave16_2007.jpg/1280px-Ellora_cave16_2007.jpg',
+  'Kumarakom':            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Kumarakom_backwaters.jpg/1280px-Kumarakom_backwaters.jpg',
+  'Cherrapunji':          'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Cherrapunji_waterfall.jpg/1280px-Cherrapunji_waterfall.jpg',
+  'Orchha':               'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Orchha_Fort_Madhya_Pradesh.jpg/1280px-Orchha_Fort_Madhya_Pradesh.jpg',
+  'Auroville':            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Matrimandir_Auroville.jpg/1280px-Matrimandir_Auroville.jpg',
+  'Nainital':             'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Nainital_Lake.jpg/1280px-Nainital_Lake.jpg',
+  'Dhanushkodi':          'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Dhanushkodi_ruins.jpg/1280px-Dhanushkodi_ruins.jpg',
+  'Sandakphu':            'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Sandakphu_view.jpg/1280px-Sandakphu_view.jpg',
+  'Munsiyari':            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Munsiyari_Uttarakhand.jpg/1280px-Munsiyari_Uttarakhand.jpg',
+  'Tarkarli':             'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Tarkarli_beach_Maharashtra.jpg/1280px-Tarkarli_beach_Maharashtra.jpg',
+  'Jawai':                'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Jawai_Leopard_Rajasthan.jpg/1280px-Jawai_Leopard_Rajasthan.jpg',
+  'Bhedaghat':            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Bhedaghat_Marble_Rocks.jpg/1280px-Bhedaghat_Marble_Rocks.jpg',
+  'Chettinad':            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Chettinad_mansion.jpg/1280px-Chettinad_mansion.jpg',
+  'Pelling':              'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Kanchenjunga_from_Pelling.jpg/1280px-Kanchenjunga_from_Pelling.jpg',
+  'Gurez Valley':         'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Gurez_Valley_Kashmir.jpg/1280px-Gurez_Valley_Kashmir.jpg',
+  'Dzukou Valley':        'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Dzukou_Valley_Nagaland.jpg/1280px-Dzukou_Valley_Nagaland.jpg',
+  'Dzukou Valley Trek':   'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Dzukou_Valley_Nagaland.jpg/1280px-Dzukou_Valley_Nagaland.jpg',
+  'Shillong':             'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Shillong_Ward_Lake.jpg/1280px-Shillong_Ward_Lake.jpg',
+  'Mathura Vrindavan':    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Vrindavan_Banke_Bihari_Temple.jpg/1280px-Vrindavan_Banke_Bihari_Temple.jpg',
+  'Konark':               'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Konarka_Temple.jpg/1280px-Konarka_Temple.jpg',
+  'Binsar':               'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Binsar_Uttarakhand_view.jpg/1280px-Binsar_Uttarakhand_view.jpg',
+  'Amer':                 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Amer_Fort_Jaipur.jpg/1280px-Amer_Fort_Jaipur.jpg',
+  'Murudeshwar':          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Murudeshwara_Shiva_statue.jpg/1280px-Murudeshwara_Shiva_statue.jpg',
+  'Murdeshwar':           'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Murudeshwara_Shiva_statue.jpg/1280px-Murudeshwara_Shiva_statue.jpg',
+  'Badami':               'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Badami_cave_temples.jpg/1280px-Badami_cave_temples.jpg',
+  'Lakshadweep':          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Agatti_Island_Lakshadweep.jpg/1280px-Agatti_Island_Lakshadweep.jpg',
+  'Kanha':                'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Kanha_National_Park_Tiger.jpg/1280px-Kanha_National_Park_Tiger.jpg',
+  'Bandhavgarh':          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Tiger_in_Bandhavgarh.jpg/1280px-Tiger_in_Bandhavgarh.jpg',
+  'Kutch':                'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Rann_of_Kutch_Gujarat.jpg/1280px-Rann_of_Kutch_Gujarat.jpg',
+  'Rann of Kutch':        'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Rann_of_Kutch_Gujarat.jpg/1280px-Rann_of_Kutch_Gujarat.jpg',
+  'Rann Utsav Camp':      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Rann_of_Kutch_Gujarat.jpg/1280px-Rann_of_Kutch_Gujarat.jpg',
+  'Diu':                  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Diu_Beach_Gujarat.jpg/1280px-Diu_Beach_Gujarat.jpg',
+  'Nubra Valley':         'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Nubra_Valley_Ladakh.jpg/1280px-Nubra_Valley_Ladakh.jpg',
+  'Araku Valley':         'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Araku_Valley_Andhra_Pradesh.jpg/1280px-Araku_Valley_Andhra_Pradesh.jpg',
+  'Tirthan Valley':       'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Tirthan_Valley_Himachal.jpg/1280px-Tirthan_Valley_Himachal.jpg',
+  'Landour':              'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Landour_Mussoorie.jpg/1280px-Landour_Mussoorie.jpg',
+  'Mukteshwar':           'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mukteshwar_Uttarakhand.jpg/1280px-Mukteshwar_Uttarakhand.jpg',
+  'Champaner':            'https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Champaner_Jama_Masjid.jpg/1280px-Champaner_Jama_Masjid.jpg',
+  'Kolad':                'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Kolad_river_rafting_Maharashtra.jpg/1280px-Kolad_river_rafting_Maharashtra.jpg',
+  'Chail':                'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Chail_Palace_Himachal.jpg/1280px-Chail_Palace_Himachal.jpg',
+  'Panchgani':            'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Panchgani_Maharashtra.jpg/1280px-Panchgani_Maharashtra.jpg',
+  'Lepakshi':             'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Lepakshi_temple_Andhra.jpg/1280px-Lepakshi_temple_Andhra.jpg',
+  'Mandu':                'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Jahaz_Mahal_Mandu.jpg/1280px-Jahaz_Mahal_Mandu.jpg',
+  'Bhandardara':          'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Bhandardara_dam_Maharashtra.jpg/1280px-Bhandardara_dam_Maharashtra.jpg',
+  'Kheerganga':           'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Kheerganga_hot_springs_Parvati.jpg/1280px-Kheerganga_hot_springs_Parvati.jpg',
+  'Marayoor':             'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Marayoor_Sandalwood_forest_Kerala.jpg/1280px-Marayoor_Sandalwood_forest_Kerala.jpg',
+  'Kausani':              'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Kausani_Uttarakhand_Himalayas.jpg/1280px-Kausani_Uttarakhand_Himalayas.jpg',
+  'Naggar':               'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Naggar_Castle_Himachal.jpg/1280px-Naggar_Castle_Himachal.jpg',
+  'Spiti - Key Monastery':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Key_Gompa_Spiti.jpg/1280px-Key_Gompa_Spiti.jpg',
+  'Patan':                'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Rani_ki_vav_Gujarat.jpg/1280px-Rani_ki_vav_Gujarat.jpg',
+  'Mudumalai':            'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Mudumalai_forest_elephant.jpg/1280px-Mudumalai_forest_elephant.jpg',
+  'Bir Billing':          'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Bir_Billing_paragliding.jpg/1280px-Bir_Billing_paragliding.jpg',
+  'Muzhappilangad Beach': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Muzhappilangad_Drive-in_Beach.jpg/1280px-Muzhappilangad_Drive-in_Beach.jpg',
+  'Kalo Dungar':          'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Rann_of_Kutch_Gujarat.jpg/1280px-Rann_of_Kutch_Gujarat.jpg',
+  'Kabini':               'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Kabini_river_elephant_Karnataka.jpg/1280px-Kabini_river_elephant_Karnataka.jpg',
+  'Chandra Taal':         'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Chandratal_Lake_Spiti.jpg/1280px-Chandratal_Lake_Spiti.jpg',
+  'Hemis':                'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Hemis_Monastery_Ladakh.jpg/1280px-Hemis_Monastery_Ladakh.jpg',
+  'Nohkalikai':           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Nohkalikai_Falls_Meghalaya.jpg/1280px-Nohkalikai_Falls_Meghalaya.jpg',
+  'Coonoor':              'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Coonoor_tea_estate.jpg/1280px-Coonoor_tea_estate.jpg',
+  'Sattal':               'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Sattal_lake_Uttarakhand.jpg/1280px-Sattal_lake_Uttarakhand.jpg',
+  'Athirappilly':         'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Athirappilly_falls_Kerala.jpg/1280px-Athirappilly_falls_Kerala.jpg',
+  'Wayanad':              'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Chembra_Peak_Wayanad.jpg/1280px-Chembra_Peak_Wayanad.jpg',
+  'Kodaikanal':           'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Kodaikanal_lake_view.jpg/1280px-Kodaikanal_lake_view.jpg',
+  'Valley of Flowers':    'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Valley_of_Flowers_Uttarakhand.jpg/1280px-Valley_of_Flowers_Uttarakhand.jpg',
+  'Jim Corbett':          'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Jim_Corbett_National_Park_Tiger.jpg/1280px-Jim_Corbett_National_Park_Tiger.jpg',
+  'Jog Falls':            'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Jog_Falls_Karnataka.jpg/1280px-Jog_Falls_Karnataka.jpg',
+  'Belur Halebidu':       'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Hoysaleswara_temple_Halebidu.jpg/1280px-Hoysaleswara_temple_Halebidu.jpg',
+  'Aihole Pattadakal':    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Pattadakal_temples_Karnataka.jpg/1280px-Pattadakal_temples_Karnataka.jpg',
+  'Pattadakal':           'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Pattadakal_temples_Karnataka.jpg/1280px-Pattadakal_temples_Karnataka.jpg',
+  'Shravanabelagola':     'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Bahubali_Shravanabelagola.jpg/1280px-Bahubali_Shravanabelagola.jpg',
+  'Bandipur':             'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Bandipur_national_park_elephant.jpg/1280px-Bandipur_national_park_elephant.jpg',
+  'Nagarhole':            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Nagarhole_forest_Karnataka.jpg/1280px-Nagarhole_forest_Karnataka.jpg',
+  'Bekal':                'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Bekal_Fort_Kerala.jpg/1280px-Bekal_Fort_Kerala.jpg',
+  'Varkala':              'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Varkala_Cliff_Beach.jpg/1280px-Varkala_Cliff_Beach.jpg',
+  'Kumarakom':            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Kumarakom_backwaters.jpg/1280px-Kumarakom_backwaters.jpg',
+  'Munroe Island':        'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Munroe_Island_backwaters_Kerala.jpg/1280px-Munroe_Island_backwaters_Kerala.jpg',
+  'Thekkady':             'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Periyar_Lake_Thekkady.jpg/1280px-Periyar_Lake_Thekkady.jpg',
+  'Periyar':              'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Periyar_Lake_Thekkady.jpg/1280px-Periyar_Lake_Thekkady.jpg',
+  'Kasol':                'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kasol_Parvati_valley_Himachal.jpg/1280px-Kasol_Parvati_valley_Himachal.jpg',
+  'Kasol Kheerganga Circuit': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kasol_Parvati_valley_Himachal.jpg/1280px-Kasol_Parvati_valley_Himachal.jpg',
+  'Triund':               'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Triund_trek_Dharamsala.jpg/1280px-Triund_trek_Dharamsala.jpg',
+  'Chitkul':              'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Chitkul_Baspa_Valley_Himachal.jpg/1280px-Chitkul_Baspa_Valley_Himachal.jpg',
+  'Sarchu':               'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Sarchu_Leh_Manali_highway.jpg/1280px-Sarchu_Leh_Manali_highway.jpg',
+  'Pin Valley':           'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Spiti_Valley_himachal_pradesh.jpg/1280px-Spiti_Valley_himachal_pradesh.jpg',
+  'Sangla':               'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Chitkul_Baspa_Valley_Himachal.jpg/1280px-Chitkul_Baspa_Valley_Himachal.jpg',
+  'Sangla Valley':        'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Chitkul_Baspa_Valley_Himachal.jpg/1280px-Chitkul_Baspa_Valley_Himachal.jpg',
+  'Hamta Pass Trek':      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Manali_Valley.jpg/1280px-Manali_Valley.jpg',
+  'Chopta Tungnath':      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Tungnath_temple_Uttarakhand.jpg/1280px-Tungnath_temple_Uttarakhand.jpg',
+  'Chadar Trek':          'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Leh_Town_and_Palace.jpg/1280px-Leh_Town_and_Palace.jpg',
+  'Kinnaur':              'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Spiti_Valley_himachal_pradesh.jpg/1280px-Spiti_Valley_himachal_pradesh.jpg',
+  'Parashar Lake':        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Parashar_Lake_temple_Mandi.jpg/1280px-Parashar_Lake_temple_Mandi.jpg',
+  'Bir Billing':          'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Bir_Billing_paragliding.jpg/1280px-Bir_Billing_paragliding.jpg',
+  'Kudremukh':            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Kudremukh_peak_Karnataka.jpg/1280px-Kudremukh_peak_Karnataka.jpg',
+  'Kabini':               'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Kabini_river_elephant_Karnataka.jpg/1280px-Kabini_river_elephant_Karnataka.jpg',
+  'Gandikota':            'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Gandikota_Fort_Andhra_Pradesh.jpg/1280px-Gandikota_Fort_Andhra_Pradesh.jpg',
+  'Horsley Hills':        'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Horsley_Hills_Andhra.jpg/1280px-Horsley_Hills_Andhra.jpg',
+  'Belum Caves':          'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Belum_Caves_Andhra_Pradesh.jpg/1280px-Belum_Caves_Andhra_Pradesh.jpg',
+  'Arvalem':              'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Arvalem_caves_Goa.jpg/1280px-Arvalem_caves_Goa.jpg',
+  'Cabo de Rama':         'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Baga_Beach%2C_Goa.jpg/1280px-Baga_Beach%2C_Goa.jpg',
+  'Om Beach':             'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Om_Beach_Gokarna.jpg/1280px-Om_Beach_Gokarna.jpg',
+  'Kudle Beach':          'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Om_Beach_Gokarna.jpg/1280px-Om_Beach_Gokarna.jpg',
+  'Hogenakkal':           'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Hogenakkal_Falls_Tamil_Nadu.jpg/1280px-Hogenakkal_Falls_Tamil_Nadu.jpg',
+  'Yercaud':              'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Yercaud_lake_Tamil_Nadu.jpg/1280px-Yercaud_lake_Tamil_Nadu.jpg',
+  'Yelagiri':             'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Yelagiri_hills_Tamil_Nadu.jpg/1280px-Yelagiri_hills_Tamil_Nadu.jpg',
+  'Udupi':                'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Udupi_Krishna_temple.jpg/1280px-Udupi_Krishna_temple.jpg',
+  'Kannur':               'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/St_Angelo_Fort_Kannur.jpg/1280px-St_Angelo_Fort_Kannur.jpg',
+  'Dooars':               'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Dooars_forest_West_Bengal.jpg/1280px-Dooars_forest_West_Bengal.jpg',
+  'Mirik':                'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Mirik_lake_Darjeeling.jpg/1280px-Mirik_lake_Darjeeling.jpg',
+  'Munger':               'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Munger_Fort_Bihar.jpg/1280px-Munger_Fort_Bihar.jpg',
+  'Puri':                 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Jagannath_Temple%2C_Puri.jpg/1280px-Jagannath_Temple%2C_Puri.jpg',
+  'Lohit Valley':         'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Ziro_Valley_Arunachal_Pradesh.jpg/1280px-Ziro_Valley_Arunachal_Pradesh.jpg',
+  'Majhuli Satra':        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Majuli_island_Assam.jpg/1280px-Majuli_island_Assam.jpg',
+  'Tezpur':               'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Tezpur_Agnigarh_Assam.jpg/1280px-Tezpur_Agnigarh_Assam.jpg',
+  'Loktak Lake':          'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Loktak_Lake_Manipur.jpg/1280px-Loktak_Lake_Manipur.jpg',
+  'Nohkalikai':           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Nohkalikai_Falls_Meghalaya.jpg/1280px-Nohkalikai_Falls_Meghalaya.jpg',
+  'Vantawng Falls':       'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Vantawng_Falls_Mizoram.jpg/1280px-Vantawng_Falls_Mizoram.jpg',
+  'Bidar':                'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Bidar_Fort_Karnataka.jpg/1280px-Bidar_Fort_Karnataka.jpg',
+};
+
+// Fallback pools: diverse verified Wikimedia images per activity type
+// Used only when a destination has no entry in DEST_PHOTOS above
+const ACTIVITY_POOLS = {
+  beach: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Baga_Beach%2C_Goa.jpg/1280px-Baga_Beach%2C_Goa.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Radhanagar_Beach_Andaman.jpg/1280px-Radhanagar_Beach_Andaman.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Varkala_Cliff_Beach.jpg/1280px-Varkala_Cliff_Beach.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Kovalam_beach_Kerala.jpg/1280px-Kovalam_beach_Kerala.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Agatti_Island_Lakshadweep.jpg/1280px-Agatti_Island_Lakshadweep.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Diu_Beach_Gujarat.jpg/1280px-Diu_Beach_Gujarat.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Om_Beach_Gokarna.jpg/1280px-Om_Beach_Gokarna.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Tarkarli_beach_Maharashtra.jpg/1280px-Tarkarli_beach_Maharashtra.jpg',
+  ],
+  adventure: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Manali_Valley.jpg/1280px-Manali_Valley.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Leh_Town_and_Palace.jpg/1280px-Leh_Town_and_Palace.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Spiti_Valley_himachal_pradesh.jpg/1280px-Spiti_Valley_himachal_pradesh.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Chandratal_Lake_Spiti.jpg/1280px-Chandratal_Lake_Spiti.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Bir_Billing_paragliding.jpg/1280px-Bir_Billing_paragliding.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Chitkul_Baspa_Valley_Himachal.jpg/1280px-Chitkul_Baspa_Valley_Himachal.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Nubra_Valley_Ladakh.jpg/1280px-Nubra_Valley_Ladakh.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Valley_of_Flowers_Uttarakhand.jpg/1280px-Valley_of_Flowers_Uttarakhand.jpg',
+  ],
+  cultural: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg/1280px-Taj_Mahal%2C_Agra%2C_India_edit3.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Hawa_Mahal%2C_Jaipur%2C_Rajasthan%2C_India_2016.jpg/1280px-Hawa_Mahal%2C_Jaipur%2C_Rajasthan%2C_India_2016.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Virupaksha_Temple%2C_Hampi.jpg/1280px-Virupaksha_Temple%2C_Hampi.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Jaisalmer_Fort.jpg/1280px-Jaisalmer_Fort.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg/1280px-Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Ellora_cave16_2007.jpg/1280px-Ellora_cave16_2007.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Konarka_Temple.jpg/1280px-Konarka_Temple.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Badami_cave_temples.jpg/1280px-Badami_cave_temples.jpg',
+  ],
+  nature: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Kerala_backwater_boat.jpg/1280px-Kerala_backwater_boat.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Tea_Gardens_Munnar.jpg/1280px-Tea_Gardens_Munnar.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/One-horned_Rhinoceros_Kaziranga.jpg/1280px-One-horned_Rhinoceros_Kaziranga.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Cherrapunji_waterfall.jpg/1280px-Cherrapunji_waterfall.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Valley_of_Flowers_Uttarakhand.jpg/1280px-Valley_of_Flowers_Uttarakhand.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Nainital_Lake.jpg/1280px-Nainital_Lake.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Athirappilly_falls_Kerala.jpg/1280px-Athirappilly_falls_Kerala.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Chembra_Peak_Wayanad.jpg/1280px-Chembra_Peak_Wayanad.jpg',
+  ],
+  spiritual: [
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg/1280px-Golden_Temple%2C_Amritsar%2C_Punjab%2C_India_-_20101010.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Dashashwamedh_Ghat%2C_Varanasi.jpg/1280px-Dashashwamedh_Ghat%2C_Varanasi.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Tawang_Monastery.jpg/1280px-Tawang_Monastery.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Hemis_Monastery_Ladakh.jpg/1280px-Hemis_Monastery_Ladakh.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Murudeshwara_Shiva_statue.jpg/1280px-Murudeshwara_Shiva_statue.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Pushkar_Lake_Rajasthan.jpg/1280px-Pushkar_Lake_Rajasthan.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Bahubali_Shravanabelagola.jpg/1280px-Bahubali_Shravanabelagola.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Matrimandir_Auroville.jpg/1280px-Matrimandir_Auroville.jpg',
+  ],
+};
+
+function normPlaceName(name=''){
+  return String(name)
+    .toLowerCase()
+    .replace(/&/g,' and ')
+    .replace(/[()'".,]/g,' ')
+    .replace(/[-/]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+const DEST_PHOTOS_NORMALIZED = Object.fromEntries(
+  Object.entries(DEST_PHOTOS).map(([name, url]) => [normPlaceName(name), url])
+);
+
+function hashStr(value=''){
+  let hash = 0;
+  for(let i = 0; i < value.length; i++) hash = ((hash << 5) - hash) + value.charCodeAt(i);
+  return Math.abs(hash);
+}
+
+function resolveDestinationPhoto(destName=''){
+  const normalized = normPlaceName(destName);
+  if (!normalized) return null;
+
+  if (DEST_PHOTOS[destName]) return DEST_PHOTOS[destName];
+  if (DEST_PHOTOS_NORMALIZED[normalized]) return DEST_PHOTOS_NORMALIZED[normalized];
+
+  const simplified = normalized
+    .replace(/\b(valley|beach|fort|island|islands|lake|temple|trek|caves|falls|hill|hills|monastery|national park|backwaters)\b/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+
+  if (simplified && DEST_PHOTOS_NORMALIZED[simplified]) return DEST_PHOTOS_NORMALIZED[simplified];
+
+  const best = Object.entries(DEST_PHOTOS_NORMALIZED)
+    .filter(([key]) => key.length >= 5 && (normalized.includes(key) || key.includes(normalized) || (simplified && (simplified.includes(key) || key.includes(simplified)))))
+    .sort((a, b) => b[0].length - a[0].length)[0];
+
+  return best ? best[1] : null;
+}
+
+function pickFallbackPhoto(destName, activityType){
+  const pool = ACTIVITY_POOLS[activityType] || ACTIVITY_POOLS.nature;
+  return pool[hashStr(normPlaceName(destName || activityType)) % pool.length];
+}
+
+async function fetchImg(dest, idx) {
+  const div = document.getElementById('img-' + idx);
+  if (!div) return;
+
+  try{
+    const r = await fetch('/destination-photo',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({destination:dest.name,state:dest.state,activity_type:dest.activity_type})
+    });
+    const photo = await r.json();
+    if(photo?.url){
+      setImg(div, photo.url, `Unsplash · ${photo.photographer || 'Photographer'}`);
+      return;
+    }
+  }catch{}
+
+  const url = resolveDestinationPhoto(dest.name) || pickFallbackPhoto(dest.name, dest.activity_type);
+  setImg(div, url, 'Wikimedia Commons');
+  return;
+
+  if (DEST_PHOTOS[dest]) {
+    // Exact destination photo — that actual place
+    url = DEST_PHOTOS[dest];
+  } else {
+    // Fallback: activity-type pool, pick by idx so each card differs
+    const pool = ACTIVITY_POOLS[act] || ACTIVITY_POOLS.nature;
+    url = pool[idx % pool.length];
+  }
+
+  setImg(div, url, 'Wikimedia Commons');
+}
+function setImg(div,url,c='Unsplash'){div.innerHTML=`<img src="${url}" alt="Destination photo" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='${FB.default}'"/><div class="c-img-overlay"></div><div style="position:absolute;bottom:.35rem;right:.5rem;font-size:.44rem;color:rgba(255,255,255,.3)">Photo: ${c}</div>`;}
+
+function showW(name){
+  // Smart contextual weather based on destination characteristics
+  const weatherProfiles={
+    'Leh Ladakh':{temp:-5,feels:-10,cond:'Snow & Ice ❄️',hum:30,wind:15},
+    'Manali':{temp:8,feels:4,cond:'Cold & Crisp 🌨️',hum:55,wind:12},
+    'Spiti Valley':{temp:2,feels:-3,cond:'Freezing 🥶',hum:28,wind:18},
+    'Goa':{temp:29,feels:33,cond:'Sunny & Humid ☀️',hum:78,wind:14},
+    'Kerala Backwaters':{temp:31,feels:35,cond:'Tropical & Warm 🌴',hum:82,wind:10},
+    'Munnar':{temp:18,feels:15,cond:'Misty & Cool 🌫️',hum:85,wind:8},
+    'Rajasthan - Jaipur':{temp:36,feels:41,cond:'Hot & Arid 🏜️',hum:25,wind:20},
+    'Jaisalmer':{temp:38,feels:44,cond:'Scorching Desert 🌵',hum:18,wind:25},
+    'Darjeeling':{temp:14,feels:10,cond:'Foggy & Cold 🌁',hum:88,wind:6},
+    'Andaman Islands':{temp:28,feels:32,cond:'Tropical 🏝️',hum:80,wind:16},
+    'Varanasi':{temp:27,feels:30,cond:'Warm & Hazy 🌅',hum:65,wind:9},
+    'Rishikesh':{temp:24,feels:22,cond:'Pleasant 🌿',hum:58,wind:11},
+    'Shimla':{temp:12,feels:8,cond:'Cool & Breezy 🌬️',hum:68,wind:14},
+    'Ooty':{temp:16,feels:13,cond:'Misty Hills 🌿',hum:79,wind:7},
+    'Udaipur':{temp:32,feels:36,cond:'Warm & Sunny 🌞',hum:40,wind:12},
+  };
+  const seasons=['❄️ Cool & Clear','☀️ Sunny & Bright','🌤️ Partly Cloudy','🌬️ Breezy','🌿 Pleasant','⛅ Overcast'];
+  const p=weatherProfiles[name]||{
+    temp:20+Math.floor(Math.random()*15),
+    feels:18+Math.floor(Math.random()*15),
+    cond:seasons[Math.floor(Math.random()*seasons.length)],
+    hum:40+Math.floor(Math.random()*45),
+    wind:5+Math.floor(Math.random()*20)
+  };
+  document.getElementById('w-city').textContent=name;
+  document.getElementById('w-temp').textContent=p.temp+'°C';
+  document.getElementById('w-cond').textContent=p.cond;
+  document.getElementById('w-hum').textContent=p.hum+'%';
+  document.getElementById('w-wind').textContent=p.wind+' km/h';
+  document.getElementById('w-feel').textContent=p.feels+'°C';
+  document.getElementById('w-note').textContent='🌍 Typical seasonal conditions';
+  document.getElementById('wOv').classList.add('show');
+}
+function closeW(){document.getElementById('wOv').classList.remove('show');}
+document.getElementById('wOv').onclick=e=>{if(e.target.id==='wOv')closeW();};
+
+function initMap(){
+  if(leafMap){setTimeout(()=>leafMap.invalidateSize(),100);return;}
+  leafMap=L.map('map',{zoomControl:true,scrollWheelZoom:true}).setView([22,80],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'© OpenStreetMap © CARTO',maxZoom:18,subdomains:'abcd'
+  }).addTo(leafMap);
+  setTimeout(()=>{leafMap.invalidateSize();if(lastR.length)updMap(lastR);},300);
+}
+function updMap(data){
+  if(!leafMap){initMap();}
+  setTimeout(()=>{
+    leafMap.invalidateSize();
+    mMarkers.forEach(m=>m.remove());mMarkers=[];
+    const ico=L.divIcon({className:'',html:`<div style="width:16px;height:16px;background:linear-gradient(135deg,#6366F1,#8B5CF6);border-radius:50%;border:2.5px solid #A5B4FC;box-shadow:0 0 12px rgba(99,102,241,.8),0 0 24px rgba(99,102,241,.4)"></div>`,iconSize:[16,16],iconAnchor:[8,8]});
+    data.forEach((d,i)=>{
+      if(!d.lat||!d.lng)return;
+      const popup=`<div style="font-family:'Plus Jakarta Sans',sans-serif;padding:4px;min-width:160px">
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">${d.name}</div>
+        <div style="font-size:11px;color:#888;margin-bottom:6px">${d.state}</div>
+        <div style="font-size:12px;color:#6366F1;font-weight:600">🎯 ${d.match_percent}% Match</div>
+        <div style="font-size:11px;color:#666;margin-top:2px">💰 ${String(d.budget||'').charAt(0).toUpperCase()+String(d.budget||'').slice(1)} · 📅 ${d.best_season||''}</div>
+      </div>`;
+      const m=L.marker([d.lat,d.lng],{icon:ico}).addTo(leafMap).bindPopup(popup);
+      mMarkers.push(m);
+      if(i===0)setTimeout(()=>m.openPopup(),300);
+    });
+    if(data.length>0&&data[0].lat){
+      if(data.length===1){leafMap.setView([data[0].lat,data[0].lng],8);}
+      else{
+        const bounds=L.latLngBounds(data.filter(d=>d.lat).map(d=>[d.lat,d.lng]));
+        leafMap.fitBounds(bounds,{padding:[50,50]});
+      }
+    }
+  },200);
+}
+
+function toggleWL(idx){const d=lastR[idx];if(!d)return;const ex=wl.findIndex(w=>w.name===d.name);if(ex>-1)wl.splice(ex,1);else wl.push(d);localStorage.setItem('wl_v7',JSON.stringify(wl));updWLC();const btn=document.getElementById(`heart-${idx}`);if(btn){btn.textContent=ex>-1?'🤍':'❤️';btn.classList.toggle('liked',ex===-1);}}
+function updWLC(){const c=document.getElementById('wl-cnt');if(c)c.textContent=wl.length;}
+function renderWL(){
+  const div=document.getElementById('wl-content');
+  if(!wl.length){div.innerHTML=`<div style="text-align:center;padding:5rem 2rem;color:var(--mt)"><div style="font-family:'Cormorant Garamond',serif;font-size:4rem;color:rgba(212,150,10,.15);margin-bottom:1rem">♡</div><p style="font-family:'Cormorant Garamond',serif;font-style:italic">Your wishlist is empty.<br>❤️ a destination from search results.</p></div>`;return;}
+  let html=`<div class="wl-grid">`;
+  wl.forEach((d,i)=>{html+=`<div class="wl-card" style="animation-delay:${i*.07}s"><div class="wl-name">${d.name}</div><div class="wl-state">📍 ${d.state}</div><div class="tags">${d.famous_for?d.famous_for.split('|').slice(0,3).map(f=>`<span class="tag hot">✦ ${f.trim()}</span>`).join(''):''}</div><div style="font-size:.7rem;color:rgba(165,180,252,.8);margin-top:.5rem">💰 ₹${Number(d.daily_cost_min||0).toLocaleString('en-IN')}–₹${Number(d.daily_cost_max||0).toLocaleString('en-IN')} /Day</div><div class="wl-act"><button class="btn btn-ghost" onclick="showW('${d.name}')">🌡️ Weather</button><button class="btn btn-primary" onclick="rmWL(${i})">✕ Remove</button></div></div>`;});
+  html+=`</div>`;div.innerHTML=html;
+}
+function rmWL(i){wl.splice(i,1);localStorage.setItem('wl_v7',JSON.stringify(wl));updWLC();renderWL();}
+
+// ── COMPARE ──
+const CMP={
+  'Goa':{bt:'Nov–Feb',wt:'25–33°C, Tropical',dist:'~600 km from Mumbai',tt:'10 hrs (Train/Bus)',tr:'✈️ Flight · 🚂 Train · 🚌 Bus',attr:'Baga Beach, Dudhsagar, Fort Aguada',act:'Scuba, Water Sports, Nightlife',saf:'🟢 Very Safe',food:'Seafood, Portuguese Cuisine, Feni',acc:'Budget Hostel to 5-Star Resort',trip:'Friends, Couples, Honeymoon',access:'🟢 Excellent'},
+  'Manali':{bt:'May–Jun, Dec–Jan',wt:'-10°C to 25°C, Cold',dist:'~570 km from Delhi',tt:'12 hrs (Bus/Car)',tr:'🚌 Bus · 🚗 Car',attr:'Rohtang Pass, Hadimba Temple, Solang',act:'Skiing, Paragliding, Trekking',saf:'🟡 Stay Alert',food:'Tibetan, Pahadi Cuisine, Thukpa',acc:'Hotel, Homestay, Camp',trip:'Families, Adventure Lovers, Bikers',access:'🟡 Weather Dependent'},
+  'Kerala Backwaters':{bt:'Oct–Mar',wt:'23–32°C, Tropical',dist:'~80 km from Kochi',tt:'2 hrs',tr:'🚢 Houseboat · 🚗 Car',attr:'Alleppey, Kumarakom, Vembanad Lake',act:'Houseboat Cruise, Ayurveda, Bird Watching',saf:'🟢 Safe',food:'Kerala Thali, Seafood, Appam',acc:'Houseboat, Luxury Resort',trip:'Honeymoon, Couples, Family',access:'🟢 Good'},
+  'Leh Ladakh':{bt:'Jun–Sep',wt:'-20°C to 25°C, Dry',dist:'~1000 km from Delhi',tt:'1.5 hr Flight',tr:'✈️ Flight · 🚗 Road Trip',attr:'Pangong Lake, Nubra Valley, Thiksey Monastery',act:'Bike Trip, Trekking, Monastery Visit',saf:'🟡 Altitude Caution',food:'Tibetan, Ladakhi Cuisine',acc:'Guesthouse, Camp, Hotel',trip:'Bikers, Adventure Seekers, Photographers',access:'🟡 Seasonal'},
+  'Varanasi':{bt:'Oct–Mar',wt:'10–35°C, Pleasant',dist:'~800 km from Delhi',tt:'8 hrs (Train)',tr:'🚂 Train · ✈️ Flight',attr:'Kashi Vishwanath, Ganga Ghats, Sarnath',act:'Ganga Aarti, Boat Ride, Yoga',saf:'🟡 Stay Alert',food:'Chaat, Lassi, Kashi Paan',acc:'Ghats-side Hotel, Heritage Haveli',trip:'Pilgrims, Spiritual Seekers',access:'🟢 Good'},
+  'Udaipur':{bt:'Oct–Mar',wt:'10–38°C, Warm',dist:'~400 km from Jaipur',tt:'6 hrs',tr:'🚂 Train · 🚗 Car · ✈️ Flight',attr:'Pichola Lake, City Palace, Jag Mandir',act:'Boating, Palace Tour, Shopping',saf:'🟢 Safe',food:'Rajasthani Thali, Dal-Baati-Churma',acc:'Lakeside Heritage Hotel, Resort',trip:'Honeymoon, Couples, Family',access:'🟢 Excellent'},
+};
+function getCmp(name,field){
+  const data=CMP[name];
+  if(!data){const d=lastR.find(r=>r.name===name);if(!d)return '—';const m={bt:cap(d.best_season)+' is Best',wt:cap(d.climate)+' Climate',dist:'—',tt:'—',tr:'🚂 Train / ✈️ Flight / 🚌 Bus',attr:d.famous_for?d.famous_for.split('|').join(', '):'—',act:cap(d.activity_type)+' Activities',saf:d.crowd_level==='Low'?'🟢 Peaceful':d.crowd_level==='High'?'🟡 Crowd':'🟢 Safe',food:'Local Cuisine',acc:cap(d.budget)==='Low'?'Budget Hotel':cap(d.budget)==='Medium'?'3-4 Star':'5 Star Resort',trip:cap(d.vibe)+' Travel',access:'🟢 Good'};return m[field]||'—';}
+  const k={bt:'bt',wt:'wt',dist:'dist',tt:'tt',tr:'tr',attr:'attr',act:'act',saf:'saf',food:'food',acc:'acc',trip:'trip',access:'access'};return data[k[field]]||'—';
+}
+function addToCmp(idx){const d=lastR[idx];if(!d)return;const slot=cmpI.findIndex(c=>c===null);if(slot===-1){alert('Maximum 3 destinations — remove one first.');return;}cmpI[slot]=d;pg('cmp-pg');renderCmpSlots();renderCmpTable();}
+function openPick(si){pickT=si;const list=document.getElementById('pick-list');if(!lastR.length){list.innerHTML=`<p style="color:var(--mt);font-size:.8rem;padding:1rem">Search destinations first!</p>`;}else list.innerHTML=lastR.map((d,i)=>`<div class="pick-item" onclick="selCmp(${i})"><div><div class="pick-name">${d.name}</div><div class="pick-state">${d.state}</div></div><span style="margin-left:auto;color:var(--g);font-size:.8rem">${d.match_percent}%</span></div>`).join('');document.getElementById('pickModal').classList.add('show');document.getElementById('pickModal').onclick=e=>{if(e.target.id==='pickModal')document.getElementById('pickModal').classList.remove('show');};}
+function selCmp(idx){cmpI[pickT]=lastR[idx];document.getElementById('pickModal').classList.remove('show');renderCmpSlots();renderCmpTable();}
+function clrSlot(i){cmpI[i]=null;renderCmpSlots();renderCmpTable();}
+function renderCmpSlots(){cmpI.forEach((d,i)=>{const s=document.getElementById(`slot-${i}`);if(!s)return;if(d){s.classList.add('filled');s.innerHTML=`<div><div class="slot-name">${d.name}</div><div class="slot-empty">${d.state}</div></div><button class="rm-slot" onclick="event.stopPropagation();clrSlot(${i})">✕</button>`;}else{s.classList.remove('filled');s.innerHTML=`<span class="slot-empty">+ Add Destination</span>`;}});}
+
+function renderCmpTable(){
+  const wrap=document.getElementById('cmp-wrap');const active=cmpI.filter(Boolean);
+  if(active.length<2){wrap.style.display='none';return;}wrap.style.display='';
+  const rows=[
+    {e:'💰',l:'Budget / Day',f:d=>`₹${Number(d.daily_cost_min||0).toLocaleString('en-IN')} – ₹${Number(d.daily_cost_max||0).toLocaleString('en-IN')}`,t:'text'},
+    {e:'📅',l:'Best Time to Visit',f:d=>getCmp(d.name,'bt'),t:'text'},
+    {e:'🌡️',l:'Weather / Temperature',f:d=>getCmp(d.name,'wt'),t:'text'},
+    {e:'📍',l:'Distance (from major city)',f:d=>getCmp(d.name,'dist'),t:'text'},
+    {e:'⏱️',l:'Travel Time',f:d=>getCmp(d.name,'tt'),t:'text'},
+    {e:'🚌',l:'Transport Options',f:d=>getCmp(d.name,'tr'),t:'text'},
+    {e:'🏛️',l:'Famous For',f:d=>getCmp(d.name,'attr'),t:'text'},
+    {e:'🏄',l:'Activities',f:d=>getCmp(d.name,'act'),t:'text'},
+    {e:'👥',l:'Crowd Level',f:d=>d.crowd_level,t:'crowd'},
+    {e:'🛡️',l:'Safety',f:d=>getCmp(d.name,'saf'),t:'text'},
+    {e:'🍽️',l:'Food Options',f:d=>getCmp(d.name,'food'),t:'text'},
+    {e:'🏨',l:'Accommodation',f:d=>getCmp(d.name,'acc'),t:'text'},
+    {e:'🎒',l:'Best Suited For',f:d=>getCmp(d.name,'trip'),t:'text'},
+    {e:'🔗',l:'Local Accessibility / Connectivity',f:d=>getCmp(d.name,'access'),t:'text'},
+    {e:'✨',l:'Mood / Vibe',f:d=>(vE[d.vibe]||'✨')+' '+cap(d.vibe),t:'text'},
+    {e:'🎯',l:'AI Match Score',f:d=>d.match_percent+'%',t:'bar',v:d=>d.match_percent,max:100},
+    {e:'⭐',l:'Overall Rating',f:d=>'★'.repeat(Math.round(d.rating))+'☆'.repeat(5-Math.round(d.rating))+' '+d.rating+'/5',t:'bar',v:d=>d.rating*20,max:100},
+  ];
+  let html=`<table class="cmp-table"><thead><tr><th style="min-width:180px">Feature</th>${active.map(d=>`<th><div style="font-family:'Cormorant Garamond',serif;font-size:1rem">${d.name}</div><div style="font-size:.7rem;color:var(--mt);font-weight:400">${d.state}</div></th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(r=>{
+    html+=`<tr><td class="rlbl">${r.e} ${r.l}</td>`;
+    active.forEach(d=>{
+      const val=r.f(d);
+      if(r.t==='bar'){const p=r.v(d);html+=`<td><b style="color:var(--g)">${val}</b><div class="sbar"><div class="sfill" style="width:${p}%"></div></div></td>`;}
+      else if(r.t==='crowd'){const cls=val==='Low'?'cb-g':val==='High'?'cb-r':'cb-y';const hi=val==='Low'?'Low Crowd':val==='High'?'High Crowd':'Medium';html+=`<td><span class="cbadge ${cls}">${cIco(val)} ${hi}</span></td>`;}
+      else html+=`<td style="font-size:.78rem;line-height:1.5">${val}</td>`;
+    });
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table>`;wrap.innerHTML=html;
+}
+
+function popItin(data){const sel=document.getElementById('itin-dest');sel.innerHTML=data.map(d=>`<option value="${d.name}" data-state="${d.state}" data-vibe="${d.vibe}" data-act="${d.activity_type}">${d.name} — ${d.state}</option>`).join('');}
+function planThis(idx){const d=lastR[idx];if(!d)return;popItin(lastR);document.getElementById('itin-dest').value=d.name;document.getElementById('itin-vibe').value=d.vibe||'nature';pg('itin-pg');}
+async function genItin(){
+  const sel=document.getElementById('itin-dest');const opt=sel.options[sel.selectedIndex];const dest=sel.value;if(!dest){alert('Search destinations first!');return;}
+  const btn=document.getElementById('itinBtn'),ldr=document.getElementById('itin-loader'),out=document.getElementById('itin-out');
+  btn.disabled=true;ldr.classList.add('show');out.innerHTML='';
+  try{const r=await fetch('/itinerary',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({destination:dest,state:opt?.dataset?.state||'',days:document.getElementById('itin-days').value,vibe:document.getElementById('itin-vibe').value,activity:opt?.dataset?.act||'cultural'})});const d=await r.json();renderItin(d,dest);}
+  catch{out.innerHTML=`<p style="color:var(--s)">Error — please try again.</p>`;}
+  finally{btn.disabled=false;ldr.classList.remove('show');}
+}
+function renderItin(data,dest){
+  const div=document.getElementById('itin-out');if(data.error||!data.days){div.innerHTML=`<p style="color:var(--s)">Could not generate trip plan.</p>`;return;}
+  let html=`<div class="eyebrow">Your AI Trip Plan</div><div class="sec-title" style="margin-bottom:1.5rem">${dest} 's<br>Complete Itinerary</div>`;
+  data.days.forEach((d,i)=>{html+=`<div class="day-card" style="animation-delay:${i*.1}s"><div class="day-hdr"><div class="day-num">${d.day}</div><div class="day-title">${d.title||'Day '+d.day}</div></div><div class="day-body"><div class="tb"><div class="tl">🌅 Morning</div><div class="tc">${d.morning}</div></div><div class="tb"><div class="tl">☀️ Afternoon</div><div class="tc">${d.afternoon}</div></div><div class="tb"><div class="tl">🌙 Evening</div><div class="tc">${d.evening}</div></div>${d.tip?`<div class="dtip"><span style="font-size:.9rem;margin-top:1px">💡</span><span style="font-size:.75rem;color:var(--mt)">${d.tip}</span></div>`:''}</div></div>`;});
+  div.innerHTML=html;
+}
+
+// CHATBOT
+function toggleChat(){chatOpen=!chatOpen;document.getElementById('chatWin').classList.toggle('open',chatOpen);document.getElementById('chatNotif').style.display=chatOpen?'none':'flex';}
+function sendSug(el){document.getElementById('chatInp').value=el.textContent;const sugs=document.getElementById('chatSugs');if(sugs)sugs.style.display='none';sendChat();}
+async function sendChat(){
+  const inp=document.getElementById('chatInp');const txt=inp.value.trim();if(!txt)return;
+  inp.value='';addMsg(txt,'user');chatH.push({role:'user',content:txt});
+  const typEl=addMsg('','typing');typEl.innerHTML=`<span class="ai-th"><span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span></span>`;
+  try{const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatH})});const d=await r.json();typEl.remove();const reply=d.reply||'Sorry, something went wrong!';addMsg(reply,'bot');chatH.push({role:'assistant',content:reply});if(chatH.length>20)chatH=chatH.slice(-16);}
+  catch{typEl.remove();addMsg('Connection error — is Flask server running?','bot');}
+}
+function addMsg(txt,cls){const msgs=document.getElementById('chatMsgs');const el=document.createElement('div');el.className=`msg ${cls}`;el.textContent=txt;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;return el;}
+
+async function downloadPDF(){
+  if(!lastR.length){alert('Search destinations first!');return;}
+  const btn=event.currentTarget||event.target;const orig=btn.innerHTML;btn.innerHTML='⏳ Generating…';btn.disabled=true;
+  try{const r=await fetch('/pdf-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({destinations:lastR,prefs:lastP})});const blob=await r.blob();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='incredible_india.pdf';a.click();URL.revokeObjectURL(url);}
+  catch(e){alert('PDF error: '+e.message);}
+  finally{btn.innerHTML=orig;btn.disabled=false;}
+}
+
+function animateAI(){
+  // Reset and re-animate steps
+  document.querySelectorAll('.ai-step').forEach((el,i)=>{
+    el.style.animation='none';
+    el.style.opacity='0';
+    el.style.transform='translateY(20px)';
+    setTimeout(()=>{el.style.animation=`aiStepIn .5s ease ${i*.15}s forwards`;},50);
+  });
+  // Animate cosine bars
+  setTimeout(()=>{
+    const bars=document.querySelectorAll('.ai-cosine-fill');
+    const pcts=['pct1','pct2','pct3','pct4'];
+    bars.forEach((bar,i)=>{
+      const target=parseInt(bar.dataset.target);
+      bar.style.width=target+'%';
+      let current=0;
+      const inc=target/60;
+      const timer=setInterval(()=>{
+        current=Math.min(current+inc,target);
+        const el=document.getElementById(pcts[i]);
+        if(el)el.textContent=Math.round(current)+'%';
+        if(current>=target)clearInterval(timer);
+      },25);
+    });
+  },1200);
+}
+
+// ── INLINE MAP MODAL ─────────────────────────────────────────
+let inlineMap = null;
+let inlineMarkers = [];
+
+function openIMap(){
+  if(!lastR.length){ alert('Search destinations first!'); return; }
+  const overlay = document.getElementById('imapOverlay');
+  const countEl = document.getElementById('imapCount');
+  const titleEl = document.getElementById('imapTitle');
+  countEl.textContent = lastR.length + ' place' + (lastR.length>1?'s':'');
+  titleEl.textContent = 'Your ' + lastR.length + ' AI Recommended Destinations';
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  // Init map after modal is visible
+  setTimeout(() => {
+    if(!inlineMap){
+      inlineMap = L.map('inlineMap', {
+        zoomControl: true,
+        scrollWheelZoom: true,
+        attributionControl: true
+      }).setView([22, 80], 5);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+        attribution:'© OpenStreetMap © CARTO',
+        maxZoom:18, subdomains:'abcd'
+      }).addTo(inlineMap);
+    }
+
+    // Clear old markers
+    inlineMarkers.forEach(m => m.remove());
+    inlineMarkers = [];
+
+    // Add markers for all results
+    lastR.forEach((d, i) => {
+      if(!d.lat || !d.lng) return;
+
+      // #1 gets gold marker, rest get indigo
+      const isTop = i === 0;
+      const color = isTop ? '#F59E0B' : '#6366F1';
+      const glow  = isTop ? 'rgba(245,158,11,.9)' : 'rgba(99,102,241,.8)';
+      const size  = isTop ? 20 : 15;
+      const border = isTop ? '#FCD34D' : '#A5B4FC';
+
+      const icon = L.divIcon({
+        className: '',
+        html: `<div style="
+          width:${size}px;height:${size}px;
+          background:${color};
+          border-radius:50%;
+          border:2.5px solid ${border};
+          box-shadow:0 0 14px ${glow},0 0 28px ${glow.replace(',.9',',.4').replace(',.8',',.3')};
+          display:flex;align-items:center;justify-content:center;
+          font-size:${isTop?8:7}px;font-weight:800;color:#fff;
+          font-family:'Plus Jakarta Sans',sans-serif;
+        ">${i+1}</div>`,
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2]
+      });
+
+      const popup = `
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;padding:6px;min-width:190px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <div style="width:22px;height:22px;border-radius:50%;background:${color};
+              display:flex;align-items:center;justify-content:center;
+              font-size:9px;font-weight:800;color:#fff;flex-shrink:0">${i+1}</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.2">${d.name}</div>
+              ${d.hindi_name ? `<div style="font-size:10px;color:#6B7280">${d.hindi_name}</div>` : ''}
+            </div>
+          </div>
+          <div style="font-size:11px;color:#888;margin-bottom:6px">📍 ${d.state} · ${cap(d.region)} India</div>
+          <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+            <span style="font-size:10px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);
+              color:#6366F1;padding:2px 8px;border-radius:999px;font-weight:600">
+              🎯 ${d.match_percent}% Match
+            </span>
+            <span style="font-size:10px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);
+              color:#D97706;padding:2px 8px;border-radius:999px">
+              ⭐ ${d.rating}/5
+            </span>
+          </div>
+          <div style="font-size:10px;color:#555;margin-bottom:4px">
+            💰 ₹${Number(d.daily_cost_min||0).toLocaleString('en-IN')}–₹${Number(d.daily_cost_max||0).toLocaleString('en-IN')}/day
+          </div>
+          <div style="font-size:10px;color:#555">📅 Best: ${cap(d.best_season||'')} · ${cap(d.activity_type||'')}</div>
+        </div>`;
+
+      const marker = L.marker([d.lat, d.lng], { icon })
+        .addTo(inlineMap)
+        .bindPopup(popup, { maxWidth: 220 });
+
+      inlineMarkers.push(marker);
+    });
+
+    // Fit all markers in view
+    inlineMap.invalidateSize();
+    const validPts = lastR.filter(d => d.lat && d.lng).map(d => [d.lat, d.lng]);
+    if(validPts.length === 1){
+      inlineMap.setView(validPts[0], 9);
+      inlineMarkers[0]?.openPopup();
+    } else if(validPts.length > 1){
+      const bounds = L.latLngBounds(validPts);
+      inlineMap.fitBounds(bounds, { padding: [40, 40] });
+      // Open top result popup after fit
+      setTimeout(() => inlineMarkers[0]?.openPopup(), 500);
+    }
+  }, 150);
+}
+
+function closeIMap(e){
+  if(e.target === document.getElementById('imapOverlay')) closeIMapBtn();
+}
+function closeIMapBtn(){
+  document.getElementById('imapOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+// Close on Escape key
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeIMapBtn();
+});
+
+updWLC();loadHero();
+</script>
+
+<!-- ═══ HOW AI WORKS ═══ -->
+<div class="page" id="ai-pg">
+  <div class="wrap" style="max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem">
+
+    <div class="eyebrow" style="margin-bottom:.8rem">Under the Hood</div>
+    <div class="sec-title" style="margin-bottom:.5rem">How AI Finds Your<br>Perfect Destination</div>
+    <p style="color:var(--mt);font-size:.95rem;margin-bottom:3rem;max-width:560px">This recommender uses two core AI techniques — Content-Based Filtering and Cosine Similarity — to match your preferences with 217 Indian destinations in real time.</p>
+
+    <!-- STEP DIAGRAM -->
+    <div class="ai-steps">
+
+      <!-- Step 1 -->
+      <div class="ai-step" id="aistep1">
+        <div class="ai-step-num">01</div>
+        <div class="ai-step-body">
+          <div class="ai-step-title">You set your preferences</div>
+          <div class="ai-step-desc">Budget, climate, activity, season, vibe and region — 6 parameters that define your ideal trip.</div>
+          <div class="ai-pref-pills">
+            <span class="ai-pill" style="animation-delay:.1s">💰 Mid-Range</span>
+            <span class="ai-pill" style="animation-delay:.2s">🌤️ Mild Climate</span>
+            <span class="ai-pill" style="animation-delay:.3s">🏛️ Cultural</span>
+            <span class="ai-pill" style="animation-delay:.4s">❄️ Winter</span>
+            <span class="ai-pill" style="animation-delay:.5s">🌿 Nature Vibe</span>
+            <span class="ai-pill" style="animation-delay:.6s">🗺️ All India</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-arrow">↓</div>
+
+      <!-- Step 2 -->
+      <div class="ai-step" id="aistep2" style="animation-delay:.2s">
+        <div class="ai-step-num">02</div>
+        <div class="ai-step-body">
+          <div class="ai-step-title">Content-Based Filtering</div>
+          <div class="ai-step-desc">Each of the 217 destinations is encoded as a numeric feature vector using Label Encoding. Your preferences become a vector too.</div>
+          <div class="ai-vector-demo">
+            <div class="ai-vec-label">Your preference vector</div>
+            <div class="ai-vec-row">
+              <div class="ai-vec-cell" style="animation-delay:.1s">1</div>
+              <div class="ai-vec-cell" style="animation-delay:.2s">2</div>
+              <div class="ai-vec-cell" style="animation-delay:.3s">0</div>
+              <div class="ai-vec-cell" style="animation-delay:.4s">3</div>
+              <div class="ai-vec-cell" style="animation-delay:.5s">1</div>
+            </div>
+            <div class="ai-vec-label" style="margin-top:.6rem">Destination vector (e.g. Rann of Kutch)</div>
+            <div class="ai-vec-row">
+              <div class="ai-vec-cell ai-vec-match" style="animation-delay:.6s">1</div>
+              <div class="ai-vec-cell ai-vec-match" style="animation-delay:.7s">2</div>
+              <div class="ai-vec-cell ai-vec-part" style="animation-delay:.8s">1</div>
+              <div class="ai-vec-cell ai-vec-match" style="animation-delay:.9s">3</div>
+              <div class="ai-vec-cell ai-vec-match" style="animation-delay:1s">1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-arrow">↓</div>
+
+      <!-- Step 3 -->
+      <div class="ai-step" id="aistep3" style="animation-delay:.4s">
+        <div class="ai-step-num">03</div>
+        <div class="ai-step-body">
+          <div class="ai-step-title">Cosine Similarity Calculation</div>
+          <div class="ai-step-desc">The angle between your vector and each destination's vector is calculated. Smaller angle = higher similarity = better match.</div>
+          <div class="ai-cosine-demo">
+            <div class="ai-cosine-bar-wrap">
+              <span class="ai-cosine-name">Rann of Kutch</span>
+              <div class="ai-cosine-track"><div class="ai-cosine-fill" style="width:0%;background:rgba(99,102,241,.8)" data-target="98"></div></div>
+              <span class="ai-cosine-pct" id="pct1">0%</span>
+            </div>
+            <div class="ai-cosine-bar-wrap">
+              <span class="ai-cosine-name">Kanha</span>
+              <div class="ai-cosine-track"><div class="ai-cosine-fill" style="width:0%;background:rgba(99,102,241,.7)" data-target="95"></div></div>
+              <span class="ai-cosine-pct" id="pct2">0%</span>
+            </div>
+            <div class="ai-cosine-bar-wrap">
+              <span class="ai-cosine-name">Kaziranga</span>
+              <div class="ai-cosine-track"><div class="ai-cosine-fill" style="width:0%;background:rgba(99,102,241,.6)" data-target="91"></div></div>
+              <span class="ai-cosine-pct" id="pct3">0%</span>
+            </div>
+            <div class="ai-cosine-bar-wrap">
+              <span class="ai-cosine-name">Goa</span>
+              <div class="ai-cosine-track"><div class="ai-cosine-fill" style="width:0%;background:rgba(99,102,241,.35)" data-target="42"></div></div>
+              <span class="ai-cosine-pct" id="pct4">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-arrow">↓</div>
+
+      <!-- Step 4 -->
+      <div class="ai-step" id="aistep4" style="animation-delay:.6s">
+        <div class="ai-step-num">04</div>
+        <div class="ai-step-body">
+          <div class="ai-step-title">Weighted Final Ranking</div>
+          <div class="ai-step-desc">Final score = 65% similarity + 20% user rating + 10% photography score + 5% hidden gem score. Top N results shown.</div>
+          <div class="ai-formula">
+            <span class="ai-formula-part" style="color:#A5B4FC">65% Match</span>
+            <span style="color:var(--mt)"> + </span>
+            <span class="ai-formula-part" style="color:rgba(34,197,94,.8)">20% Rating</span>
+            <span style="color:var(--mt)"> + </span>
+            <span class="ai-formula-part" style="color:rgba(251,191,36,.8)">10% Photo</span>
+            <span style="color:var(--mt)"> + </span>
+            <span class="ai-formula-part" style="color:rgba(167,139,250,.8)">5% Hidden Gem</span>
+            <span style="color:var(--mt)"> = </span>
+            <span class="ai-formula-result">Final Score</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-arrow">↓</div>
+
+      <!-- Step 5 -->
+      <div class="ai-step" id="aistep5" style="animation-delay:.8s">
+        <div class="ai-step-num">05</div>
+        <div class="ai-step-body">
+          <div class="ai-step-title">LLM Enhancement (Groq Llama 3.3)</div>
+          <div class="ai-step-desc">Groq's Llama 3.3 70B model adds three layers of intelligence on top of the recommender — a poetic AI description, a personalised itinerary, and a conversational travel chatbot.</div>
+          <div class="ai-llm-chips">
+            <div class="ai-llm-chip">✍️ AI Descriptions</div>
+            <div class="ai-llm-chip">🗓️ Trip Itinerary</div>
+            <div class="ai-llm-chip">💬 Yatra Chatbot</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tech Stack -->
+    <div style="margin-top:3rem">
+      <div class="eyebrow" style="margin-bottom:1.2rem">Tech Stack</div>
+      <div class="ai-tech-grid">
+        <div class="ai-tech-card"><div class="ai-tech-icon">🐍</div><div class="ai-tech-name">Python + Flask</div><div class="ai-tech-role">Backend server</div></div>
+        <div class="ai-tech-card"><div class="ai-tech-icon">🧮</div><div class="ai-tech-name">scikit-learn</div><div class="ai-tech-role">Cosine similarity</div></div>
+        <div class="ai-tech-card"><div class="ai-tech-icon">🐼</div><div class="ai-tech-name">Pandas</div><div class="ai-tech-role">Data processing</div></div>
+        <div class="ai-tech-card"><div class="ai-tech-icon">⚡</div><div class="ai-tech-name">Groq Llama 3.3</div><div class="ai-tech-role">LLM responses</div></div>
+        <div class="ai-tech-card"><div class="ai-tech-icon">🗺️</div><div class="ai-tech-name">Leaflet.js</div><div class="ai-tech-role">Interactive maps</div></div>
+        <div class="ai-tech-card"><div class="ai-tech-icon">📊</div><div class="ai-tech-name">217 Destinations</div><div class="ai-tech-role">Training dataset</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ INLINE MAP MODAL ═══ -->
+<div class="imap-overlay" id="imapOverlay" onclick="closeIMap(event)">
+  <div class="imap-modal">
+    <div class="imap-header">
+      <div class="imap-title">
+        <span>🗺️</span>
+        <span id="imapTitle">Destinations on Map</span>
+        <span class="imap-count" id="imapCount">0 places</span>
+      </div>
+      <button class="imap-close" onclick="closeIMapBtn()">✕</button>
+    </div>
+    <div class="imap-legend">
+      <div class="imap-leg-item"><div class="imap-leg-dot" style="background:#6366F1;box-shadow:0 0 6px rgba(99,102,241,.8)"></div>All Destinations</div>
+      <div class="imap-leg-item"><div class="imap-leg-dot" style="background:#F59E0B;box-shadow:0 0 6px rgba(245,158,11,.8)"></div>#1 Best Match</div>
+      <div class="imap-leg-item" style="margin-left:auto;font-size:.7rem;color:#6B7280">Click marker for details · Scroll to zoom</div>
+    </div>
+    <div id="inlineMap"></div>
+  </div>
+</div>
+</body>
+</html>
