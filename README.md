@@ -1,8 +1,11 @@
-# AI-Travel-Recommender
-An AI-powered system that suggests travel destinations based on user preferences like budget, interests, and location.
+# 🌍 AI Travel Recommender
 
-🚀 Features
-Personalized recommendations
-AI-based suggestion system
-Location-based search
-Smart itinerary planning
+An AI-powered web application that suggests travel destinations based on user preferences like **budget, interests, and location**.
+
+---
+
+## 🚀 Features
+- 🎯 Personalized travel recommendations  
+- 🤖 AI-based suggestion system  
+- 📍 Location-based search  
+- 🗺️ Smart itinerary planning  
