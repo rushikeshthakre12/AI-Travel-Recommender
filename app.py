@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, jsonify, send_file
 from recommender import recommend
 import os, io, random, anthropic, requests
 from fpdf import FPDF
-# ── API KEYS — apni keys yahan daalo ──────────────────────────
+# ── API KEYS ──────────────────────────
 import pathlib
 _env_path = pathlib.Path(__file__).parent / ".env"
 if _env_path.exists():
