@@ -7,5 +7,5 @@ An AI-powered web application that suggests travel destinations based on user pr
 ## 🚀 Features
 - 🎯 Personalized travel recommendations
 - 🤖 AI-based suggestion system  
-- 📍 Location-based search  
+- 📍 Location-based search   
 - 🗺️ Smart itinerary planning  
